@@ -31,7 +31,7 @@ class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        if (validate(user)) {
+        if (validateSave(user)) {
             user.setId(generateId());
             users.add(user);
         }
@@ -40,8 +40,9 @@ class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User update(long userId, User user) {
+        user.setId(userId);
         return users.stream().map(lastUser -> {
-            if(validate(user)){
+            if(validateUpdate(user)){
                 if (lastUser.getId() == userId) {
                     if (user.getName() != null) {
                         lastUser.setName(user.getName());
@@ -64,8 +65,16 @@ class UserRepositoryImpl implements UserRepository {
         return localId++;
     }
 
-    private boolean validate(User user) {
+    private boolean validateSave(User user) {
         if (users.stream().filter(lastUser -> lastUser.getEmail().equals(user.getEmail())).collect(Collectors.toList()).isEmpty()) {
+            return true;
+        } else {
+            throw new RuntimeException("Email duplicate conflict.");
+        }
+    }
+
+    private boolean validateUpdate(User user) {
+        if (users.stream().filter(lastUser -> lastUser.getEmail().equals(user.getEmail()) && lastUser.getId() != user.getId()).collect(Collectors.toList()).isEmpty()) {
             return true;
         } else {
             throw new RuntimeException("Email duplicate conflict.");

@@ -15,9 +15,7 @@ public class ItemMap {
 
     public List<ItemDto> transferObj(List<Item> listItem) {
         List<ItemDto> listItemDto = new ArrayList<>();
-        listItem.stream().forEach(item -> {
-            listItemDto.add(ItemDto.builder().id(item.getId()).owner(item.getOwner()).name(item.getName()).description(item.getDescription()).available(Boolean.parseBoolean(item.getAvailable())).build());
-        });
+        listItem.forEach(item -> listItemDto.add(ItemDto.builder().id(item.getId()).owner(item.getOwner()).name(item.getName()).description(item.getDescription()).available(Boolean.parseBoolean(item.getAvailable())).build()));
         return listItemDto;
     }
 }

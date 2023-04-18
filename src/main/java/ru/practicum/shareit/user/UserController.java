@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable long userId) {
+    public UserDto getUserById(@PathVariable Long userId) {
         log.debug(String.valueOf(LogMessages.TRY_GET_ID), userId);
         return userService.getUserById(userId);
     }
@@ -40,13 +40,13 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateLastUser(@PathVariable long userId, @RequestBody User user) {
+    public UserDto updateLastUser(@PathVariable Long userId, @RequestBody User user) {
         log.debug(String.valueOf(LogMessages.TRY_UPDATE), userId);
         return userService.updateUser(userId, user);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteLastUser(@PathVariable long userId) {
+    public void deleteLastUser(@PathVariable Long userId) {
         log.debug(String.valueOf(LogMessages.TRY_DELETE), userId);
         userService.deleteUser(userId);
     }

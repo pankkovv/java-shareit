@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 public class ItemRepositoryImpl implements ItemRepository {
     private final ItemMap itemMap;
     private final UserRepository userRepository;
-    private HashMap<Long, List<Item>> items = new HashMap<>();
+    private final HashMap<Long, List<Item>> items = new HashMap<>();
     private long localId = 1;
 
     @Override
-    public ItemDto addNewItem(long userId, Item item) {
+    public ItemDto addNewItem(Long userId, Item item) {
         userRepository.getById(userId);
         item.setOwner(userId);
         item.setId(generateId());
@@ -40,11 +40,11 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public ItemDto updateItem(long userId, long itemId, Item item) {
+    public ItemDto updateItem(Long userId, Long itemId, Item item) {
         item.setId(itemId);
         item.setOwner(userId);
         items.values().stream().flatMap(Collection::stream).forEach(lastItem -> {
-            if (lastItem.getId() == itemId) {
+            if (Objects.equals(lastItem.getId(), itemId)) {
                 validate(lastItem, item);
                 updater(lastItem, item);
             }
@@ -54,13 +54,13 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public ItemDto getItemById(long itemId) {
+    public ItemDto getItemById(Long itemId) {
         log.debug(String.valueOf(LogMessages.TRY_GET_ID), itemId);
-        return itemMap.transferObj(items.values().stream().flatMap(Collection::stream).filter(item -> item.getId() == itemId).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM)));
+        return itemMap.transferObj(items.values().stream().flatMap(Collection::stream).filter(item -> item.getId().equals(itemId)).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM)));
     }
 
     @Override
-    public List<ItemDto> getAllItemUserId(long userId) {
+    public List<ItemDto> getAllItemUserId(Long userId) {
         log.debug(String.valueOf(LogMessages.GET), userId);
         return itemMap.transferObj(items.getOrDefault(userId, Collections.emptyList()));
     }
@@ -68,9 +68,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public List<ItemDto> searchItem(String text) {
         if (!text.isEmpty()) {
-            List<Item> searchItem = items.values().stream().flatMap(Collection::stream).filter(item -> {
-                return (item.getName().toLowerCase().contains(text.toLowerCase()) || item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.getAvailable().equals("true");
-            }).collect(Collectors.toList());
+            List<Item> searchItem = items.values().stream().flatMap(Collection::stream).filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase()) || item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.getAvailable().equals("true")).collect(Collectors.toList());
             log.debug(String.valueOf(LogMessages.SEARCH), searchItem);
             return itemMap.transferObj(searchItem);
         } else {
@@ -84,12 +82,12 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     private void validate(Item lastItem, Item newItem) {
         userRepository.getById(newItem.getOwner());
-        if (lastItem.getOwner() != newItem.getOwner()) {
+        if (!Objects.equals(lastItem.getOwner(), newItem.getOwner())) {
             throw new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM);
         }
     }
 
-    private Item updater(Item lastItem, Item newItem) {
+    private void updater(Item lastItem, Item newItem) {
         if (newItem.getName() != null) {
             lastItem.setName(newItem.getName());
         }
@@ -99,6 +97,5 @@ public class ItemRepositoryImpl implements ItemRepository {
         if (newItem.getAvailable() != null) {
             lastItem.setAvailable(newItem.getAvailable());
         }
-        return lastItem;
     }
 }

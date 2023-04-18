@@ -30,7 +30,7 @@ class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public UserDto getById(long userId) {
+    public UserDto getById(Long userId) {
         log.debug(String.valueOf(LogMessages.GET_ID), userId);
         return userMap.transferObj(users.stream().filter(user -> user.getId() == userId).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_USER)));
     }
@@ -46,10 +46,10 @@ class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public UserDto update(long userId, User user) {
+    public UserDto update(Long userId, User user) {
         user.setId(userId);
         validate(user);
-        users.stream().forEach(lastUser -> {
+        users.forEach(lastUser -> {
             if (lastUser.getId() == userId) {
                 updater(lastUser, user);
             }
@@ -59,7 +59,7 @@ class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void delete(long userId) {
+    public void delete(Long userId) {
         log.debug(String.valueOf(LogMessages.DELETE), userId);
         users.removeAll(users.stream().filter(user -> user.getId() == userId).collect(Collectors.toList()));
     }
@@ -69,22 +69,21 @@ class UserRepositoryImpl implements UserRepository {
     }
 
     private boolean validate(User user) {
-        if (users.stream().filter(lastUser -> lastUser.getEmail().equals(user.getEmail())).collect(Collectors.toList()).isEmpty()) {
+        if (users.stream().noneMatch(lastUser -> lastUser.getEmail().equals(user.getEmail()))) {
             return true;
-        } else if (users.stream().filter(lastUser -> lastUser.getEmail().equals(user.getEmail()) && lastUser.getId() != user.getId()).collect(Collectors.toList()).isEmpty()) {
+        } else if (users.stream().noneMatch(lastUser -> lastUser.getEmail().equals(user.getEmail()) && lastUser.getId() != user.getId())) {
             return true;
         } else {
             throw new ConflictException(ExceptionMessages.DUPLICATE_EMAIL);
         }
     }
 
-    private User updater(User lastUser, User newUser) {
+    private void updater(User lastUser, User newUser) {
         if (newUser.getName() != null) {
             lastUser.setName(newUser.getName());
         }
         if (newUser.getEmail() != null) {
             lastUser.setEmail(newUser.getEmail());
         }
-        return lastUser;
     }
 }

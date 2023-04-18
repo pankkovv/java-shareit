@@ -15,9 +15,9 @@ public class UserMap {
 
     public List<UserDto> transferObj(List<User> listUser) {
         List<UserDto> userDtoList = new ArrayList<>();
-        listUser.stream().forEach(user -> {
+        for (User user : listUser) {
             userDtoList.add(UserDto.builder().id(user.getId()).name(user.getName()).email(user.getEmail()).build());
-        });
+        }
         return userDtoList;
     }
 }

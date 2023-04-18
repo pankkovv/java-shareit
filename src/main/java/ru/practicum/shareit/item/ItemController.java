@@ -30,7 +30,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getByItemId(@PathVariable long itemId) {
+    public ItemDto getByItemId(@PathVariable Long itemId) {
         log.debug(String.valueOf(LogMessages.TRY_GET_ID), itemId);
         return itemService.getById(itemId);
     }
@@ -42,13 +42,13 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody Item item) {
+    public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody Item item) {
         log.debug(String.valueOf(LogMessages.TRY_ADD), item);
         return itemService.save(userId, item);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@NotNull @RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId, @RequestBody Item item) {
+    public ItemDto updateItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody Item item) {
         log.debug(String.valueOf(LogMessages.TRY_UPDATE), item);
         return itemService.update(userId, itemId, item);
     }

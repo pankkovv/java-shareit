@@ -3,6 +3,9 @@ package ru.practicum.shareit.item.model;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+
 /**
  * TODO Sprint add-controllers.
  */
@@ -10,9 +13,16 @@ import lombok.Data;
 @Data
 @Builder
 public class Item {
-    private long id;
-    private long userId;
+    private Long id;
+    @NotBlank
+    @NotEmpty
     private String name;
+    @NotBlank
+    @NotEmpty
     private String description;
-    private boolean available;
+    @NotBlank
+    @NotEmpty
+    private String available;
+    private Long owner;
+    private String request;
 }

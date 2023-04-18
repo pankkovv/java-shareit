@@ -1,63 +1,66 @@
 package ru.practicum.shareit.user.repository;
 
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.messages.ExceptionMessages;
+import ru.practicum.shareit.messages.LogMessages;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMap;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
+@Repository
+@RequiredArgsConstructor
+@Slf4j
 class UserRepositoryImpl implements UserRepository {
+    private final UserMap userMap;
     private final List<User> users = new ArrayList<>();
     private long localId = 1;
 
     @Override
-    public List<User> findAll() {
-        return users;
+    public List<UserDto> findAll() {
+        log.debug(String.valueOf(LogMessages.GET), users);
+        return userMap.transferObj(users);
     }
 
     @Override
-    public User getById(long userId) {
-        return users.stream().map(user -> {
-            if (user.getId() == userId) {
-                return user;
-            } else {
-                throw new NotFoundException("User not found.");
-            }
-        }).findFirst().get();
+    public UserDto getById(long userId) {
+        log.debug(String.valueOf(LogMessages.GET_ID), userId);
+        return userMap.transferObj(users.stream().filter(user -> user.getId() == userId).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_USER)));
     }
 
     @Override
-    public User save(User user) {
-        if (validateSave(user)) {
+    public UserDto save(User user) {
+        if (validate(user)) {
             user.setId(generateId());
             users.add(user);
         }
-        return user;
+        log.debug(String.valueOf(LogMessages.ADD), user);
+        return userMap.transferObj(user);
     }
 
     @Override
-    public User update(long userId, User user) {
+    public UserDto update(long userId, User user) {
         user.setId(userId);
-        return users.stream().map(lastUser -> {
-            if(validateUpdate(user)){
-                if (lastUser.getId() == userId) {
-                    if (user.getName() != null) {
-                        lastUser.setName(user.getName());
-                    }
-                    if (user.getEmail() != null) {
-                        lastUser.setEmail(user.getEmail());
-                    }
-                }
+        validate(user);
+        users.stream().forEach(lastUser -> {
+            if (lastUser.getId() == userId) {
+                updater(lastUser, user);
             }
-            return getById(userId);
-        }).findFirst().get();
+        });
+        log.debug(String.valueOf(LogMessages.UPDATE), getById(userId));
+        return getById(userId);
     }
 
     @Override
     public void delete(long userId) {
+        log.debug(String.valueOf(LogMessages.DELETE), userId);
         users.removeAll(users.stream().filter(user -> user.getId() == userId).collect(Collectors.toList()));
     }
 
@@ -65,19 +68,23 @@ class UserRepositoryImpl implements UserRepository {
         return localId++;
     }
 
-    private boolean validateSave(User user) {
+    private boolean validate(User user) {
         if (users.stream().filter(lastUser -> lastUser.getEmail().equals(user.getEmail())).collect(Collectors.toList()).isEmpty()) {
             return true;
+        } else if (users.stream().filter(lastUser -> lastUser.getEmail().equals(user.getEmail()) && lastUser.getId() != user.getId()).collect(Collectors.toList()).isEmpty()) {
+            return true;
         } else {
-            throw new RuntimeException("Email duplicate conflict.");
+            throw new ConflictException(ExceptionMessages.DUPLICATE_EMAIL);
         }
     }
 
-    private boolean validateUpdate(User user) {
-        if (users.stream().filter(lastUser -> lastUser.getEmail().equals(user.getEmail()) && lastUser.getId() != user.getId()).collect(Collectors.toList()).isEmpty()) {
-            return true;
-        } else {
-            throw new RuntimeException("Email duplicate conflict.");
+    private User updater(User lastUser, User newUser) {
+        if (newUser.getName() != null) {
+            lastUser.setName(newUser.getName());
         }
+        if (newUser.getEmail() != null) {
+            lastUser.setEmail(newUser.getEmail());
+        }
+        return lastUser;
     }
 }

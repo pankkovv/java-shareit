@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 public class ItemDto {
     private long id;
-    private long userId;
+    private Long owner;
     private String name;
     private String description;
     private boolean available;

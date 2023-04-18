@@ -2,42 +2,42 @@ package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 
 import java.util.List;
 
-@Component
+@Service
 @AllArgsConstructor
-public class ItemServiceImpl implements ItemService{
+public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private final ItemRepository itemRepository;
 
     @Override
-    public Item save(long userId, Item item) {
-        item.setUserId(userId);
-        return itemRepository.addNewItem(item);
+    public ItemDto save(long userId, Item item) {
+        return itemRepository.addNewItem(userId, item);
     }
 
     @Override
-    public Item update(long itemId, Item item) {
-        return itemRepository.updateItem(itemId, item);
+    public ItemDto update(long userId, long itemId, Item item) {
+        return itemRepository.updateItem(userId, itemId, item);
     }
 
     @Override
-    public Item getById(long itemId) {
+    public ItemDto getById(long itemId) {
         return itemRepository.getItemById(itemId);
     }
 
     @Override
-    public List<Item> getAllItem(long userId) {
+    public List<ItemDto> getAllItem(long userId) {
         return itemRepository.getAllItemUserId(userId);
     }
 
     @Override
-    public Item search(String text) {
+    public List<ItemDto> search(String text) {
         return itemRepository.searchItem(text);
     }
 }

@@ -25,14 +25,17 @@ class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<UserDto> findAll() {
-        log.debug(String.valueOf(LogMessages.GET), users);
-        return userMap.transferObj(users);
+        log.debug(LogMessages.GET.toString(), users);
+        return userMap.transferToObj(users);
     }
 
     @Override
     public UserDto getById(Long userId) {
-        log.debug(String.valueOf(LogMessages.GET_ID), userId);
-        return userMap.transferObj(users.stream().filter(user -> user.getId() == userId).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_USER)));
+        log.debug(LogMessages.GET_ID.toString(), userId);
+        return userMap.transferToObj(users.stream()
+                .filter(user -> user.getId() == userId)
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_USER)));
     }
 
     @Override
@@ -41,8 +44,8 @@ class UserRepositoryImpl implements UserRepository {
             user.setId(generateId());
             users.add(user);
         }
-        log.debug(String.valueOf(LogMessages.ADD), user);
-        return userMap.transferObj(user);
+        log.debug(LogMessages.ADD.toString(), user);
+        return userMap.transferToObj(user);
     }
 
     @Override
@@ -54,14 +57,16 @@ class UserRepositoryImpl implements UserRepository {
                 updater(lastUser, user);
             }
         });
-        log.debug(String.valueOf(LogMessages.UPDATE), getById(userId));
+        log.debug(LogMessages.UPDATE.toString(), getById(userId));
         return getById(userId);
     }
 
     @Override
     public void delete(Long userId) {
-        log.debug(String.valueOf(LogMessages.DELETE), userId);
-        users.removeAll(users.stream().filter(user -> user.getId() == userId).collect(Collectors.toList()));
+        log.debug(LogMessages.DELETE.toString(), userId);
+        users.removeAll(users.stream()
+                .filter(user -> user.getId() == userId)
+                .collect(Collectors.toList()));
     }
 
     private long generateId() {
@@ -69,9 +74,12 @@ class UserRepositoryImpl implements UserRepository {
     }
 
     private boolean validate(User user) {
-        if (users.stream().noneMatch(lastUser -> lastUser.getEmail().equals(user.getEmail()))) {
+        if (users.stream()
+                .noneMatch(lastUser -> lastUser.getEmail().equals(user.getEmail()))) {
             return true;
-        } else if (users.stream().noneMatch(lastUser -> lastUser.getEmail().equals(user.getEmail()) && lastUser.getId() != user.getId())) {
+        } else if (users.stream()
+                .noneMatch(lastUser -> lastUser.getEmail().equals(user.getEmail())
+                        && lastUser.getId() != user.getId())) {
             return true;
         } else {
             throw new ConflictException(ExceptionMessages.DUPLICATE_EMAIL);

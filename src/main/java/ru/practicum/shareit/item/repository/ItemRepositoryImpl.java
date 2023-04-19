@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMap;
 import ru.practicum.shareit.item.model.Item;
@@ -35,42 +36,55 @@ public class ItemRepositoryImpl implements ItemRepository {
             userItems.add(item);
             return userItems;
         });
-        log.debug(String.valueOf(LogMessages.ADD), item);
-        return itemMap.transferObj(item);
+        log.debug(LogMessages.ADD.toString(), item);
+        return itemMap.transferToObj(item);
     }
 
     @Override
     public ItemDto updateItem(Long userId, Long itemId, Item item) {
         item.setId(itemId);
         item.setOwner(userId);
-        items.values().stream().flatMap(Collection::stream).forEach(lastItem -> {
-            if (Objects.equals(lastItem.getId(), itemId)) {
-                validate(lastItem, item);
-                updater(lastItem, item);
-            }
-        });
-        log.debug(String.valueOf(LogMessages.UPDATE), getItemById(itemId));
+        items.values().stream()
+                .flatMap(Collection::stream)
+                .forEach(lastItem -> {
+                    if (Objects.equals(lastItem.getId(), itemId)) {
+                        validate(lastItem, item);
+                        updater(lastItem, item);
+                    }
+                });
+        log.debug(LogMessages.UPDATE.toString(), getItemById(itemId));
         return getItemById(itemId);
     }
 
     @Override
     public ItemDto getItemById(Long itemId) {
-        log.debug(String.valueOf(LogMessages.TRY_GET_ID), itemId);
-        return itemMap.transferObj(items.values().stream().flatMap(Collection::stream).filter(item -> item.getId().equals(itemId)).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM)));
+        log.debug(LogMessages.TRY_GET_ID.toString(), itemId);
+        return itemMap.transferToObj(items.values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(item -> item.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM)));
     }
 
     @Override
     public List<ItemDto> getAllItemUserId(Long userId) {
-        log.debug(String.valueOf(LogMessages.GET), userId);
-        return itemMap.transferObj(items.getOrDefault(userId, Collections.emptyList()));
+        log.debug(LogMessages.GET.toString(), userId);
+        return itemMap.transferToObj(items.getOrDefault(userId, Collections.emptyList()));
     }
 
     @Override
     public List<ItemDto> searchItem(String text) {
         if (!text.isEmpty()) {
-            List<Item> searchItem = items.values().stream().flatMap(Collection::stream).filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase()) || item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.getAvailable().equals("true")).collect(Collectors.toList());
-            log.debug(String.valueOf(LogMessages.SEARCH), searchItem);
-            return itemMap.transferObj(searchItem);
+            List<Item> searchItem = items.values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase())
+                            || item.getDescription().toLowerCase().contains(text.toLowerCase()))
+                            && item.getAvailable().equals("true"))
+                    .collect(Collectors.toList());
+            log.debug(LogMessages.SEARCH.toString(), searchItem);
+            return itemMap.transferToObj(searchItem);
         } else {
             return List.of();
         }
@@ -83,7 +97,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     private void validate(Item lastItem, Item newItem) {
         userRepository.getById(newItem.getOwner());
         if (!Objects.equals(lastItem.getOwner(), newItem.getOwner())) {
-            throw new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM);
+            throw new NotOwnerException(ExceptionMessages.NOT_FOUND_ITEM);
         }
     }
 
@@ -94,7 +108,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         if (newItem.getDescription() != null) {
             lastItem.setDescription(newItem.getDescription());
         }
-        if (newItem.getAvailable() != null) {
+        if (!Objects.equals(newItem.getAvailable(), "null")) {
             lastItem.setAvailable(newItem.getAvailable());
         }
     }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMap;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.messages.LogMessages;
@@ -22,34 +23,37 @@ import java.util.List;
 @Slf4j
 public class ItemController {
     private final ItemService itemService;
+    private final ItemMap itemMap;
 
     @GetMapping
-    public List<ItemDto> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") long userId) {
-        log.debug(String.valueOf(LogMessages.TRY_GET), userId);
+    public List<ItemDto> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.debug(LogMessages.TRY_GET.toString(), userId);
         return itemService.getAllItem(userId);
     }
 
     @GetMapping("/{itemId}")
     public ItemDto getByItemId(@PathVariable Long itemId) {
-        log.debug(String.valueOf(LogMessages.TRY_GET_ID), itemId);
+        log.debug(LogMessages.TRY_GET_ID.toString(), itemId);
         return itemService.getById(itemId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItem(@NotBlank @RequestParam String text) {
-        log.debug(String.valueOf(LogMessages.TRY_GET_SEARCH), text);
+        log.debug(LogMessages.TRY_GET_SEARCH.toString(), text);
         return itemService.search(text);
     }
 
     @PostMapping
-    public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody Item item) {
-        log.debug(String.valueOf(LogMessages.TRY_ADD), item);
+    public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
+        Item item = itemMap.transferFromObj(itemDto);
+        log.debug(LogMessages.TRY_ADD.toString(), item);
         return itemService.save(userId, item);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody Item item) {
-        log.debug(String.valueOf(LogMessages.TRY_UPDATE), item);
+    public ItemDto updateItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
+        Item item = itemMap.transferFromObj(itemDto);
+        log.debug(LogMessages.TRY_UPDATE.toString(), item);
         return itemService.update(userId, itemId, item);
     }
 }

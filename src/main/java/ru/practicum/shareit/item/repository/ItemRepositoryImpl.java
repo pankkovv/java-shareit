@@ -35,7 +35,7 @@ public class ItemRepositoryImpl implements ItemRepository {
             userItems.add(item);
             return userItems;
         });
-        log.debug(String.valueOf(LogMessages.ADD), item);
+        log.debug(LogMessages.ADD.label, item);
         return itemMap.transferObj(item);
     }
 
@@ -49,19 +49,19 @@ public class ItemRepositoryImpl implements ItemRepository {
                 updater(lastItem, item);
             }
         });
-        log.debug(String.valueOf(LogMessages.UPDATE), getItemById(itemId));
+        log.debug(LogMessages.UPDATE.label, getItemById(itemId));
         return getItemById(itemId);
     }
 
     @Override
     public ItemDto getItemById(Long itemId) {
-        log.debug(String.valueOf(LogMessages.TRY_GET_ID), itemId);
-        return itemMap.transferObj(items.values().stream().flatMap(Collection::stream).filter(item -> item.getId().equals(itemId)).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM)));
+        log.debug(LogMessages.TRY_GET_ID.label, itemId);
+        return itemMap.transferObj(items.values().stream().flatMap(Collection::stream).filter(item -> item.getId().equals(itemId)).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label)));
     }
 
     @Override
     public List<ItemDto> getAllItemUserId(Long userId) {
-        log.debug(String.valueOf(LogMessages.GET), userId);
+        log.debug(LogMessages.GET.label, userId);
         return itemMap.transferObj(items.getOrDefault(userId, Collections.emptyList()));
     }
 
@@ -69,7 +69,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     public List<ItemDto> searchItem(String text) {
         if (!text.isEmpty()) {
             List<Item> searchItem = items.values().stream().flatMap(Collection::stream).filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase()) || item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.getAvailable().equals("true")).collect(Collectors.toList());
-            log.debug(String.valueOf(LogMessages.SEARCH), searchItem);
+            log.debug(LogMessages.SEARCH.label, searchItem);
             return itemMap.transferObj(searchItem);
         } else {
             return List.of();
@@ -83,7 +83,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     private void validate(Item lastItem, Item newItem) {
         userRepository.getById(newItem.getOwner());
         if (!Objects.equals(lastItem.getOwner(), newItem.getOwner())) {
-            throw new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM);
+            throw new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label);
         }
     }
 

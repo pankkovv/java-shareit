@@ -25,31 +25,31 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") long userId) {
-        log.debug(String.valueOf(LogMessages.TRY_GET), userId);
+        log.debug(LogMessages.TRY_GET.label, userId);
         return itemService.getAllItem(userId);
     }
 
     @GetMapping("/{itemId}")
     public ItemDto getByItemId(@PathVariable Long itemId) {
-        log.debug(String.valueOf(LogMessages.TRY_GET_ID), itemId);
+        log.debug(LogMessages.TRY_GET_ID.label, itemId);
         return itemService.getById(itemId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItem(@NotBlank @RequestParam String text) {
-        log.debug(String.valueOf(LogMessages.TRY_GET_SEARCH), text);
+        log.debug(LogMessages.TRY_GET_SEARCH.label, text);
         return itemService.search(text);
     }
 
     @PostMapping
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody Item item) {
-        log.debug(String.valueOf(LogMessages.TRY_ADD), item);
+        log.debug(LogMessages.TRY_ADD.label, item);
         return itemService.save(userId, item);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody Item item) {
-        log.debug(String.valueOf(LogMessages.TRY_UPDATE), item);
+        log.debug(LogMessages.TRY_UPDATE.label, item);
         return itemService.update(userId, itemId, item);
     }
 }

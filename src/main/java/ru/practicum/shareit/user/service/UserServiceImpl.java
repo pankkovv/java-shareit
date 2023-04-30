@@ -38,5 +38,4 @@ class UserServiceImpl implements UserService {
         repository.delete(userId);
     }
 
-
 }

@@ -1,8 +1,13 @@
 package ru.practicum.shareit.messages;
 
 public enum ExceptionMessages {
-    ;
-    public static final String NOT_FOUND_USER = "Пользователь не найден.";
-    public static final String NOT_FOUND_ITEM = "Запись о вещи не найдена.";
-    public static final String DUPLICATE_EMAIL = "Данный email уже зарегестрирован.";
+    NOT_FOUND_USER("Пользователь не найден."),
+    NOT_FOUND_ITEM("Запись о вещи не найдена."),
+    DUPLICATE_EMAIL("Данный email уже зарегестрирован.");
+
+    public final String label;
+
+    ExceptionMessages(String label) {
+        this.label = label;
+    }
 }

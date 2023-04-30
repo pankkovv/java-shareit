@@ -25,14 +25,14 @@ class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<UserDto> findAll() {
-        log.debug(String.valueOf(LogMessages.GET), users);
+        log.debug(LogMessages.GET.label, users);
         return userMap.transferObj(users);
     }
 
     @Override
     public UserDto getById(Long userId) {
-        log.debug(String.valueOf(LogMessages.GET_ID), userId);
-        return userMap.transferObj(users.stream().filter(user -> user.getId() == userId).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_USER)));
+        log.debug(LogMessages.GET_ID.label, userId);
+        return userMap.transferObj(users.stream().filter(user -> user.getId() == userId).findFirst().orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_USER.label)));
     }
 
     @Override
@@ -41,7 +41,7 @@ class UserRepositoryImpl implements UserRepository {
             user.setId(generateId());
             users.add(user);
         }
-        log.debug(String.valueOf(LogMessages.ADD), user);
+        log.debug(LogMessages.ADD.label, user);
         return userMap.transferObj(user);
     }
 
@@ -54,13 +54,13 @@ class UserRepositoryImpl implements UserRepository {
                 updater(lastUser, user);
             }
         });
-        log.debug(String.valueOf(LogMessages.UPDATE), getById(userId));
+        log.debug(LogMessages.UPDATE.label, getById(userId));
         return getById(userId);
     }
 
     @Override
     public void delete(Long userId) {
-        log.debug(String.valueOf(LogMessages.DELETE), userId);
+        log.debug(LogMessages.DELETE.label, userId);
         users.removeAll(users.stream().filter(user -> user.getId() == userId).collect(Collectors.toList()));
     }
 
@@ -74,7 +74,7 @@ class UserRepositoryImpl implements UserRepository {
         } else if (users.stream().noneMatch(lastUser -> lastUser.getEmail().equals(user.getEmail()) && lastUser.getId() != user.getId())) {
             return true;
         } else {
-            throw new ConflictException(ExceptionMessages.DUPLICATE_EMAIL);
+            throw new ConflictException(ExceptionMessages.DUPLICATE_EMAIL.label);
         }
     }
 

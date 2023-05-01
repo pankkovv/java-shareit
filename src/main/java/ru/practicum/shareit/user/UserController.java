@@ -25,33 +25,33 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getAllUsers() {
-        log.debug(LogMessages.TRY_GET.toString(), userService.getAllUsers());
+        log.debug(LogMessages.TRY_GET.label, userService.getAllUsers());
         return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
     public UserDto getUserById(@PathVariable Long userId) {
-        log.debug(LogMessages.TRY_GET_ID.toString(), userId);
+        log.debug(LogMessages.TRY_GET_ID.label, userId);
         return userService.getUserById(userId);
     }
 
     @PostMapping
     public UserDto saveNewUser(@Valid @RequestBody UserDto userDto) {
         User user = userMap.transferFromObj(userDto);
-        log.debug(LogMessages.TRY_ADD.toString(), user);
+        log.debug(LogMessages.TRY_ADD.label, user);
         return userService.saveUser(user);
     }
 
     @PatchMapping("/{userId}")
     public UserDto updateLastUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
         User user = userMap.transferFromObj(userDto);
-        log.debug(LogMessages.TRY_UPDATE.toString(), userId);
+        log.debug(LogMessages.TRY_UPDATE.label, userId);
         return userService.updateUser(userId, user);
     }
 
     @DeleteMapping("/{userId}")
     public void deleteLastUser(@PathVariable Long userId) {
-        log.debug(LogMessages.TRY_DELETE.toString(), userId);
+        log.debug(LogMessages.TRY_DELETE.label, userId);
         userService.deleteUser(userId);
     }
 }

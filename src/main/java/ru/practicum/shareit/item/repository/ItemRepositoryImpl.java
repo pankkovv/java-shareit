@@ -36,7 +36,7 @@ public class ItemRepositoryImpl implements ItemRepository {
             userItems.add(item);
             return userItems;
         });
-        log.debug(LogMessages.ADD.toString(), item);
+        log.debug(LogMessages.ADD.label, item);
         return itemMap.transferToObj(item);
     }
 
@@ -52,24 +52,24 @@ public class ItemRepositoryImpl implements ItemRepository {
                         updater(lastItem, item);
                     }
                 });
-        log.debug(LogMessages.UPDATE.toString(), getItemById(itemId));
+        log.debug(LogMessages.UPDATE.label, getItemById(itemId));
         return getItemById(itemId);
     }
 
     @Override
     public ItemDto getItemById(Long itemId) {
-        log.debug(LogMessages.TRY_GET_ID.toString(), itemId);
+        log.debug(LogMessages.TRY_GET_ID.label, itemId);
         return itemMap.transferToObj(items.values()
                 .stream()
                 .flatMap(Collection::stream)
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM)));
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label)));
     }
 
     @Override
     public List<ItemDto> getAllItemUserId(Long userId) {
-        log.debug(LogMessages.GET.toString(), userId);
+        log.debug(LogMessages.GET.label, userId);
         return itemMap.transferToObj(items.getOrDefault(userId, Collections.emptyList()));
     }
 
@@ -83,7 +83,7 @@ public class ItemRepositoryImpl implements ItemRepository {
                             || item.getDescription().toLowerCase().contains(text.toLowerCase()))
                             && item.getAvailable().equals("true"))
                     .collect(Collectors.toList());
-            log.debug(LogMessages.SEARCH.toString(), searchItem);
+            log.debug(LogMessages.SEARCH.label, searchItem);
             return itemMap.transferToObj(searchItem);
         } else {
             return List.of();
@@ -97,7 +97,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     private void validate(Item lastItem, Item newItem) {
         userRepository.getById(newItem.getOwner());
         if (!Objects.equals(lastItem.getOwner(), newItem.getOwner())) {
-            throw new NotOwnerException(ExceptionMessages.NOT_FOUND_ITEM);
+            throw new NotOwnerException(ExceptionMessages.NOT_FOUND_ITEM.label);
         }
     }
 

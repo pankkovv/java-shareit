@@ -13,14 +13,10 @@ public enum LogMessages {
     TRY_UPDATE("Попытка обновить объект: {}"),
     TRY_GET_SEARCH("Попытка поиска объекта: text = {}"),
     TRY_DELETE("Попытка удалить объект: {}");
-    private final String textLog;
 
-    LogMessages(String textLog) {
-        this.textLog = textLog;
-    }
+    public final String label;
 
-    @Override
-    public String toString() {
-        return textLog;
+    LogMessages(String label) {
+        this.label = label;
     }
-    }
+}

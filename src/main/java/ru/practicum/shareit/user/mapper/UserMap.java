@@ -9,7 +9,16 @@ import java.util.List;
 
 @Component
 public class UserMap {
-    public UserDto transferToObj(User user) {
+
+    public static User mapToUser(UserDto userDto) {
+        return User.builder()
+                .id(userDto.getId())
+                .name(userDto.getName())
+                .email(userDto.getEmail())
+                .build();
+    }
+
+    public static UserDto mapToUserDto(User user) {
         return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -17,24 +26,12 @@ public class UserMap {
                 .build();
     }
 
-    public List<UserDto> transferToObj(List<User> listUser) {
+    public static List<UserDto> mapToUserDto(List<User> listUser) {
         List<UserDto> userDtoList = new ArrayList<>();
         for (User user : listUser) {
-            userDtoList.add(UserDto.builder()
-                    .id(user.getId())
-                    .name(user.getName())
-                    .email(user.getEmail())
-                    .build());
+            userDtoList.add(mapToUserDto(user));
         }
         return userDtoList;
-    }
-
-    public User transferFromObj(UserDto userDto) {
-        return User.builder()
-                .id(userDto.getId())
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .build();
     }
 
 }

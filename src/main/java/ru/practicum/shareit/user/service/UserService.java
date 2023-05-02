@@ -3,16 +3,23 @@ package ru.practicum.shareit.user.service;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
+@Transactional
 public interface UserService {
+    @Transactional
     List<UserDto> getAllUsers();
 
-    UserDto getUserById(long userId);
+    @Transactional
+    UserDto getByUserId(Long userId);
 
+    @Transactional
     UserDto saveUser(User user);
 
-    UserDto updateUser(long userId, User user);
+    @Transactional
+    UserDto updateUser(Long userId, User user);
 
-    void deleteUser(long userId);
+    @Transactional
+    void deleteUser(Long userId);
 }

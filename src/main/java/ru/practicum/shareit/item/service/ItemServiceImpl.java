@@ -1,43 +1,52 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMap;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
-public class ItemServiceImpl implements ItemService {
+@RequiredArgsConstructor
+public class ItemServiceImpl implements ItemService{
 
-    @Autowired
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public ItemDto save(long userId, Item item) {
-        return itemRepository.addNewItem(userId, item);
+    public List<ItemDto> getByUserId(Long userId) {
+        return null;
     }
 
     @Override
-    public ItemDto update(long userId, long itemId, Item item) {
-        return itemRepository.updateItem(userId, itemId, item);
-    }
-
-    @Override
-    public ItemDto getById(long itemId) {
-        return itemRepository.getItemById(itemId);
-    }
-
-    @Override
-    public List<ItemDto> getAllItem(long userId) {
-        return itemRepository.getAllItemUserId(userId);
+    public ItemDto getByItemId(Long itemId) {
+        Item item = itemRepository.getById(itemId);
+        return ItemMap.mapToItemDto(item);
     }
 
     @Override
     public List<ItemDto> search(String text) {
-        return itemRepository.searchItem(text);
+        return ItemMap.mapToItemDto(itemRepository.searchItemByNameAndDescription(text));
+    }
+
+    @Override
+    public ItemDto saveItem(Long userId, ItemDto itemDto) {
+        User user = userRepository.getById(userId);
+//                .orElseThrow(() -> new NotOwnerException("User not found."));
+        Item item = itemRepository.save(ItemMap.mapToItem(itemDto, user));
+        return ItemMap.mapToItemDto(item);
+    }
+
+    @Override
+    public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
+//        Item item = itemRepository.;
+        return null;
     }
 }

@@ -4,39 +4,39 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMap;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
     public List<UserDto> getAllUsers() {
-        return null;
+        return UserMap.mapToUserDto(userRepository.findAll());
     }
 
     @Override
     public UserDto getByUserId(Long userId) {
-        User user = userRepository.getById(userId);
-        return UserMap.mapToUserDto(user);
+        return UserMap.mapToUserDto(userRepository.getById(userId));
     }
 
     @Override
-    public UserDto saveUser(User user) {
-        return null;
+    public UserDto saveUser(UserDto userDto) {
+        return UserMap.mapToUserDto(userRepository.save(UserMap.mapToUser(userDto)));
     }
 
     @Override
-    public UserDto updateUser(Long userId, User user) {
-        return null;
+    public UserDto updateUser(Long userId, UserDto userDto) {
+        return UserMap.mapToUserDto(userRepository.updateUserById(UserMap.mapToUser(userDto), userId));
     }
 
     @Override
     public void deleteUser(Long userId) {
-
+        userRepository.deleteById(userId);
     }
 }

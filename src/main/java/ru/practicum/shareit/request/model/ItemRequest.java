@@ -22,7 +22,7 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String description;
-    @OneToOne
-    @JoinColumn(name = "requestor_id")
+    @ManyToOne
+    @JoinColumn(name = "users_id")
     private User requestor;
 }

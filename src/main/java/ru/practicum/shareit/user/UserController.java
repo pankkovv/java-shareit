@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMap;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
@@ -32,21 +31,19 @@ public class UserController {
     @GetMapping("/{userId}")
     public UserDto getUserById(@PathVariable Long userId) {
         log.debug(LogMessages.TRY_GET_ID.label, userId);
-        return userService.getUserById(userId);
+        return userService.getByUserId(userId);
     }
 
     @PostMapping
     public UserDto saveNewUser(@Valid @RequestBody UserDto userDto) {
-        User user = userMap.transferFromObj(userDto);
-        log.debug(LogMessages.TRY_ADD.label, user);
-        return userService.saveUser(user);
+        log.debug(LogMessages.TRY_ADD.label, userDto);
+        return userService.saveUser(userDto);
     }
 
     @PatchMapping("/{userId}")
     public UserDto updateLastUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
-        User user = userMap.transferFromObj(userDto);
         log.debug(LogMessages.TRY_UPDATE.label, userId);
-        return userService.updateUser(userId, user);
+        return userService.updateUser(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")

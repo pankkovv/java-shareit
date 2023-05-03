@@ -32,6 +32,6 @@ public class Item {
     @Column(name = "is_available")
     private Boolean available;
     @OneToOne
-    @JoinColumn(name = "request_id")
+    @JoinColumn(name = "requests_id")
     private ItemRequest request;
 }

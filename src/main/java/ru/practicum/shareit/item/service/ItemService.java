@@ -10,18 +10,15 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Transactional
-interface ItemService {
+public interface ItemService {
 
-    @Transactional
     List<ItemDto> getByUserId(Long userId);
-    @Transactional
+
     public ItemDto getByItemId(Long itemId);
-    @Transactional
+
     public List<ItemDto> search(String text);
 
-    @Transactional
     public ItemDto saveItem(Long userId, ItemDto itemDto);
 
-    @Transactional
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto);
 }

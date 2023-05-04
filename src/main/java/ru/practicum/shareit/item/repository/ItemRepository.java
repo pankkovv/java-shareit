@@ -2,21 +2,15 @@ package ru.practicum.shareit.item.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.CrudRepository;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
-@Repository
-public interface ItemRepository extends JpaRepository<Item, Long> {
+public interface ItemRepository extends JpaRepository<Item, Long>, CrudRepository<Item, Long> {
 
-    Item updateItemByOwnerIdAndId(Long ownerId, Long id);
-
-    List<Item> findItemsByOwnerId(Long userId);
-
-    @Query(value = "select it.*" +
-            "from items as it" +
-            "where it.name ilike '%:?1' or it.description ilike '%:?1'" +
-            "group by it.id", nativeQuery = true)
-    List<Item> searchItemByNameAndDescription(String text);
+    List<Item> findByOwnerId(Long userId);
+    List<Item> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String t1, String t2);
 }

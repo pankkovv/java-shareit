@@ -32,7 +32,14 @@ class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(Long userId, UserDto userDto) {
-        return UserMap.mapToUserDto(userRepository.updateUserById(UserMap.mapToUser(userDto), userId));
+        UserDto userDtoOld = getByUserId(userId);
+        if (userDto.getName() != null) {
+            userDtoOld.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            userDtoOld.setEmail(userDto.getEmail());
+        }
+        return saveUser(userDtoOld);
     }
 
     @Override

@@ -1,12 +1,8 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Transactional

@@ -12,5 +12,5 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long>, CrudRepository<Item, Long> {
 
     List<Item> findByOwnerId(Long userId);
-    List<Item> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String t1, String t2);
+    List<Item> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(String t1, String t2, boolean is_Available);
 }

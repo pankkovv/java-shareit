@@ -23,6 +23,6 @@ public class ItemRequest {
     private Long id;
     private String description;
     @ManyToOne
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "requestor_id")
     private User requestor;
 }

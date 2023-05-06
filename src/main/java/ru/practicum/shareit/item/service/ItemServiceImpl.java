@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMap;
@@ -28,12 +29,16 @@ class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getByItemId(Long itemId) {
-        return ItemMap.mapToItemDto(itemRepository.findById(itemId).orElseThrow(() -> new NotOwnerException("User not found.")));
+        return ItemMap.mapToItemDto(itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found.")));
     }
 
     @Override
     public List<ItemDto> search(String text) {
-        return ItemMap.mapToItemDto(itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(text, text));
+        if(!text.isEmpty()){
+            return ItemMap.mapToItemDto(itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(text, text, true));
+        } else {
+            return List.of();
+        }
     }
 
     @Override
@@ -56,6 +61,9 @@ class ItemServiceImpl implements ItemService {
         }
         if(itemDto.getAvailable() != null){
             itemDtoOld.setAvailable(itemDto.getAvailable());
+        }
+        if(itemDto.getRequest() != null){
+            itemDtoOld.setRequest(itemDto.getRequest());
         }
         return saveItem(userId, itemDtoOld);
     }

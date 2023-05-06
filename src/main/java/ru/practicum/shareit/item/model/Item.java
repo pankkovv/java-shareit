@@ -25,13 +25,13 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "owner_id")
     private User owner;
     private String name;
     private String description;
     @Column(name = "is_available")
     private Boolean available;
     @OneToOne
-    @JoinColumn(name = "requests_id")
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 }

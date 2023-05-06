@@ -25,14 +25,14 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "start_date")
-    private LocalDateTime start;
+    private LocalDateTime start = LocalDateTime.now();
     @Column(name = "end_date")
-    private LocalDateTime end;
+    private LocalDateTime end = LocalDateTime.now();
     @OneToOne
-    @JoinColumn(name = "items_id")
+    @JoinColumn(name = "item_id")
     private Item item;
     @OneToOne
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "booker_id")
     private User booker;
     @Enumerated(EnumType.STRING)
     private BookingStatus bookingStatus;

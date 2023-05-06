@@ -15,15 +15,9 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class BookingDto {
     private Long id;
-    @NotNull
     private String start;
-    @NotNull
     private String end;
-    @NotNull
-    private Long item;
-    @NotNull
-    private Long booker;
-    @NotBlank
-    @NotEmpty
+    private Long itemId;
+    private Long bookerId;
     private BookingStatus bookingStatus;
 }

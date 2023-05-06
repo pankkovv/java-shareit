@@ -1,9 +1,12 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMap;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
@@ -17,12 +20,12 @@ class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        return UserMap.mapToUserDto(userRepository.findAll());
+        return UserMap.mapToUserDto(userRepository.findAll(Sort.by(Sort.Direction.ASC, "id")));
     }
 
     @Override
     public UserDto getByUserId(Long userId) {
-        return UserMap.mapToUserDto(userRepository.getById(userId));
+        return UserMap.mapToUserDto(userRepository.findById(userId).orElseThrow(()->new NotOwnerException("User not found.")));
     }
 
     @Override
@@ -46,4 +49,5 @@ class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }
+
 }

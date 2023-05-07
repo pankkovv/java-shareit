@@ -10,5 +10,7 @@ public enum StateStatus {
 
     public final String label;
 
-    StateStatus(String label){this.label = label;}
+    StateStatus(String label) {
+        this.label = label;
+    }
 }

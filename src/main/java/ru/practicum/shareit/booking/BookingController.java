@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.status.StateStatus;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * TODO Sprint add-bookings.
@@ -20,27 +21,27 @@ import java.util.List;
 public class BookingController {
     private final BookingService bookingService;
     @PostMapping
-    BookingDto bookingItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @Valid BookingDto bookingDto){
+    BookingDto bookingItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody BookingDto bookingDto){
         return bookingService.bookingItem(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
     BookingDto bookingConfirm(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @NotNull @PathVariable Long bookingId, @RequestParam boolean approved){
-        return null;
+        return bookingService.bookingConfirm(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     BookingDto getByIdBooking(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId){
-        return null;
+        return bookingService.getByIdBooking(userId, bookingId);
     }
 
     @GetMapping
-    List<BookingDto> getByIdListBookings(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam (required = false, defaultValue = "ALL") StateStatus stateStatus){
-        return null;
+    List<BookingDto> getByIdListBookings(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam (required = false) String state){
+        return bookingService.getByIdListBookings(userId, state);
     }
 
     @GetMapping("/owner")
-    List<BookingDto> getByIdOwnerBookingItems(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam StateStatus stateStatus){
-        return null;
+    List<BookingDto> getByIdOwnerBookingItems(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam (required = false, defaultValue = "ALL") StateStatus stateStatus){
+        return bookingService.getByIdOwnerBookingItems(userId, stateStatus);
     }
 }

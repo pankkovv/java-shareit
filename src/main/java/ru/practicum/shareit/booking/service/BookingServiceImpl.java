@@ -36,9 +36,14 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto bookingItem(Long userId, BookingShort bookingShort) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotOwnerException("User not found."));
         Item item = itemRepository.findById(bookingShort.getItemId()).orElseThrow(() -> new NotFoundException("Item not found."));
-        List<Booking> booking = bookingRepository.getBookingByBookerId(userId);
         if(!item.getOwner().equals(user)){
-            BookingDto bookingDto = BookingDto.builder().start(bookingShort.getStart()).end(bookingShort.getEnd()).booker(user).item(item).status(BookingStatus.WAITING).build();
+            BookingDto bookingDto = BookingDto.builder()
+                    .start(bookingShort.getStart())
+                    .end(bookingShort.getEnd())
+                    .booker(user)
+                    .item(item)
+                    .status(BookingStatus.WAITING)
+                    .build();
             validation(bookingDto);
             return BookingMap.mapToBookingDto(bookingRepository.save(BookingMap.mapToBooking(bookingDto, item, user)));
         } else {

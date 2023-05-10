@@ -2,7 +2,8 @@ package ru.practicum.shareit.booking.mapper;
 
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingWithoutDate;
+import ru.practicum.shareit.booking.dto.BookingWithDate;
+
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -45,18 +46,23 @@ public class BookingMap {
         return listBookingDto;
     }
 
-    public static BookingWithoutDate mapToBookingWithoutDate(Booking booking) {
-        return BookingWithoutDate.builder()
-                .id(booking.getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .status(booking.getBookingStatus())
-                .bookerId(booking.getBooker().getId())
-                .build();
+    public static BookingWithDate mapToBookingWithoutDate(Booking booking) {
+        if(booking != null){
+            return BookingWithDate.builder()
+                    .id(booking.getId())
+                    .start(booking.getStart())
+                    .end(booking.getEnd())
+                    .status(booking.getBookingStatus())
+                    .bookerId(booking.getBooker().getId())
+                    .itemId(booking.getId())
+                    .build();
+        } else {
+            return null;
+        }
     }
 
-    public static List<BookingWithoutDate> mapToBookingWithoutDate(List<Booking> bookingList) {
-        List<BookingWithoutDate> listBookingWithoutDate = new ArrayList<>();
+    public static List<BookingWithDate> mapToBookingWithoutDate(List<Booking> bookingList) {
+        List<BookingWithDate> listBookingWithoutDate = new ArrayList<>();
         for (Booking booking : bookingList) {
             listBookingWithoutDate.add(mapToBookingWithoutDate(booking));
         }

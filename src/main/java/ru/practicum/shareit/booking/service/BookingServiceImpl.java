@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingShort;
 import ru.practicum.shareit.booking.mapper.BookingMap;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -20,36 +21,45 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-    private final BookingRepository bookingRepository;
-    private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final BookingRepository bookingRepository;
+
 
     @Override
-    public BookingDto bookingItem(Long userId, BookingDto bookingDto) {
+    public BookingDto bookingItem(Long userId, BookingShort bookingShort) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotOwnerException("User not found."));
-        Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() -> new NotFoundException("Item not found."));
-        bookingDto.setBookerId(userId);
-        bookingDto.setStatus(BookingStatus.WAITING);
-        bookingDto.setItem(item);
-        validation(bookingDto);
-        return BookingMap.mapToBookingDto(bookingRepository.save(BookingMap.mapToBooking(bookingDto, item, user)));
+        Item item = itemRepository.findById(bookingShort.getItemId()).orElseThrow(() -> new NotFoundException("Item not found."));
+        List<Booking> booking = bookingRepository.getBookingByBookerId(userId);
+        if(!item.getOwner().equals(user)){
+            BookingDto bookingDto = BookingDto.builder().start(bookingShort.getStart()).end(bookingShort.getEnd()).booker(user).item(item).status(BookingStatus.WAITING).build();
+            validation(bookingDto);
+            return BookingMap.mapToBookingDto(bookingRepository.save(BookingMap.mapToBooking(bookingDto, item, user)));
+        } else {
+            throw new NotFoundException("Item not found.");
+        }
     }
 
     @Override
     public BookingDto bookingConfirm(Long userId, Long bookingId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Booking not found."));
         if (Objects.equals(booking.getItem().getOwner().getId(), userId)) {
-            if (approved) {
-                booking.setBookingStatus(BookingStatus.APPROVED);
+            if(booking.getBookingStatus().equals(BookingStatus.WAITING)){
+                if (approved) {
+                    booking.setBookingStatus(BookingStatus.APPROVED);
+                } else {
+                    booking.setBookingStatus(BookingStatus.REJECTED);
+                }
+                return BookingMap.mapToBookingDto(bookingRepository.save(booking));
             } else {
-                booking.setBookingStatus(BookingStatus.REJECTED);
+                throw new NotStateException("State is approved.");
             }
-            return BookingMap.mapToBookingDto(bookingRepository.save(booking));
         } else {
             throw new NotFoundException("Item not found.");
         }
@@ -58,7 +68,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto getByIdBooking(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Booking not found."));
-        return BookingMap.mapToBookingDto(bookingRepository.getByIdBooking(bookingId, userId));
+        if(booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId){
+            return BookingMap.mapToBookingDto(bookingRepository.getByIdBooking(bookingId, userId));
+        } else {
+            throw new NotFoundException("Booking not found.");
+        }
     }
 
     @Override
@@ -100,7 +114,7 @@ public class BookingServiceImpl implements BookingService {
                 case PAST:
                     return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatus(userId, BookingStatus.CANCELED.label));
                 case FUTURE:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(userId,  BookingStatus.WAITING.label, BookingStatus.APPROVED.label));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(userId, BookingStatus.WAITING.label, BookingStatus.APPROVED.label));
                 case WAITING:
                     return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatus(userId, BookingStatus.WAITING.label));
                 case REJECTED:

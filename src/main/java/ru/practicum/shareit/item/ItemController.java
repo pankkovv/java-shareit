@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.messages.LogMessages;
 
@@ -23,15 +24,15 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDtoWithBooking> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.debug(LogMessages.TRY_GET.label, userId);
         return itemService.getByUserId(userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getByItemId(@PathVariable Long itemId) {
+    public ItemDtoWithBooking getByItemId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
         log.debug(LogMessages.TRY_GET_ID.label, itemId);
-        return itemService.getByItemId(itemId);
+        return itemService.getByItemId(userId, itemId);
     }
 
     @GetMapping("/search")

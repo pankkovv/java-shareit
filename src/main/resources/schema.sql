@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS bookings
     booker_id     BIGINT                      NOT NULL,
     booking_status VARCHAR(50)                 NOT NULL,
     CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES items (id),
-    CONSTRAINT fk_booker FOREIGN KEY (booker_id) REFERENCES bookings (id)
+    CONSTRAINT fk_booker FOREIGN KEY (booker_id) REFERENCES users (id)
 );
 
 CREATE TABLE IF NOT EXISTS comments

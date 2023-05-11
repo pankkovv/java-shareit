@@ -3,14 +3,10 @@ package ru.practicum.shareit.booking.mapper;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingWithDate;
-
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,25 +43,16 @@ public class BookingMap {
     }
 
     public static BookingWithDate mapToBookingWithoutDate(Booking booking) {
-        if(booking != null){
+        if (booking != null) {
             return BookingWithDate.builder()
                     .id(booking.getId())
                     .start(booking.getStart())
                     .end(booking.getEnd())
                     .status(booking.getBookingStatus())
                     .bookerId(booking.getBooker().getId())
-                    .itemId(booking.getId())
                     .build();
         } else {
             return null;
         }
-    }
-
-    public static List<BookingWithDate> mapToBookingWithoutDate(List<Booking> bookingList) {
-        List<BookingWithDate> listBookingWithoutDate = new ArrayList<>();
-        for (Booking booking : bookingList) {
-            listBookingWithoutDate.add(mapToBookingWithoutDate(booking));
-        }
-        return listBookingWithoutDate;
     }
 }

@@ -3,14 +3,12 @@ package ru.practicum.shareit.comment.mapper;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommentMap {
-
     public static Comment mapToComment(CommentDto commentDto, User user, Item item) {
         return Comment.builder()
                 .id(commentDto.getId())

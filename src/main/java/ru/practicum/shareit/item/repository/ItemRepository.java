@@ -4,13 +4,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long>, CrudRepository<Item, Long> {
-
     List<Item> findByOwnerId(Long userId);
-    List<Item> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(String t1, String t2, boolean is_Available);
+
+    @Query(value = "select i " +
+            "from Item as i " +
+            "where (lower(i.name) like lower(concat('%', ?1, '%')) or lower(i.description) like lower(concat('%', ?1, '%'))) and i.available = true ")
+    List<Item> search(String text);
 }

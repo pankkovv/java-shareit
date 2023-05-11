@@ -10,7 +10,6 @@ import ru.practicum.shareit.exception.model.ErrorResponse;
 
 @RestControllerAdvice
 public class ErrorHandler {
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
@@ -20,6 +19,12 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotOwnerException(final NotOwnerException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotOwnerException(final NotBookingException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -40,5 +45,4 @@ public class ErrorHandler {
     public ErrorResponse handleStateException(final NotStateException e) {
         return new ErrorResponse(e.getMessage());
     }
-
 }

@@ -14,5 +14,4 @@ public class BookingWithDate {
     private LocalDateTime end;
     private BookingStatus status;
     private Long bookerId;
-    private Long itemId;
 }

@@ -2,21 +2,20 @@ package ru.practicum.shareit.item.mapper;
 
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingWithDate;
-
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class ItemMap {
-
     public static Item mapToItem(ItemDto itemDto, User user) {
         return Item.builder()
                 .id(itemDto.getId())
@@ -56,24 +55,23 @@ public class ItemMap {
     }
 
     public static ItemDtoWithBookingAndComments mapToItemDtoWithBookingAndComments(Item item, BookingWithDate bookingLast, BookingWithDate bookingNext, List<CommentDto> comments) {
-            return ItemDtoWithBookingAndComments.builder()
-                    .id(item.getId())
-                    .owner(item.getOwner().getId())
-                    .name(item.getName())
-                    .description(item.getDescription())
-                    .available(item.getAvailable())
-                    .lastBooking(bookingLast)
-                    .nextBooking(bookingNext)
-                    .comments(comments)
-                    .build();
-
+        return ItemDtoWithBookingAndComments.builder()
+                .id(item.getId())
+                .owner(item.getOwner().getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .lastBooking(bookingLast)
+                .nextBooking(bookingNext)
+                .comments(comments)
+                .build();
     }
 
-    public static List<ItemDtoWithBookingAndComments> mapToItemDtoWithBookingAndComments(List<Item> listItem, ArrayList<BookingWithDate> bookingsLast, ArrayList<BookingWithDate> bookingsNext, HashMap<Long, List<CommentDto>> comments) {
+    public static List<ItemDtoWithBookingAndComments> mapToItemDtoWithBookingAndComments(List<Item> listItem, HashMap<Long, BookingWithDate> bookingsLast, HashMap<Long, BookingWithDate> bookingsNext, HashMap<Long, List<CommentDto>> comments) {
         List<ItemDtoWithBookingAndComments> listItemDtoWithBooking = new ArrayList<>();
         for (Item item : listItem) {
-            BookingWithDate bookingLast = bookingsLast.stream().filter(bookingWithDate -> Objects.equals(bookingWithDate.getItemId(), item.getId())).collect(Collectors.toList()).get(0);
-            BookingWithDate bookingNext = bookingsNext.stream().filter(bookingWithDate -> Objects.equals(bookingWithDate.getItemId(), item.getId())).collect(Collectors.toList()).get(0);
+            BookingWithDate bookingLast = bookingsLast.get(item.getId());
+            BookingWithDate bookingNext = bookingsNext.get(item.getId());
             List<CommentDto> commentList = comments.get(item.getId());
             listItemDtoWithBooking.add(mapToItemDtoWithBookingAndComments(item, bookingLast, bookingNext, commentList));
         }
@@ -81,5 +79,4 @@ public class ItemMap {
                 .sorted(Comparator.comparing(ItemDtoWithBookingAndComments::getId))
                 .collect(Collectors.toList());
     }
-
 }

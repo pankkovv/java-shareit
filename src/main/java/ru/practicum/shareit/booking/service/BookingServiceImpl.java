@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShort;
@@ -9,34 +10,35 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.booking.status.StateStatus;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.NotOwnerException;
-import ru.practicum.shareit.exception.NotStateException;
-import ru.practicum.shareit.exception.ValidException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.messages.ExceptionMessages;
+import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
 
-
     @Override
-    public BookingDto bookingItem(Long userId, BookingShort bookingShort) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotOwnerException("User not found."));
-        Item item = itemRepository.findById(bookingShort.getItemId()).orElseThrow(() -> new NotFoundException("Item not found."));
-        if(!item.getOwner().equals(user)){
+    public BookingDto bookingAdd(Long userId, BookingShort bookingShort) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotOwnerException(ExceptionMessages.NOT_FOUND_USER.label));
+        Item item = itemRepository.findById(bookingShort.getItemId())
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label));
+        if (!item.getOwner().equals(user)) {
             BookingDto bookingDto = BookingDto.builder()
                     .start(bookingShort.getStart())
                     .end(bookingShort.getEnd())
@@ -45,99 +47,120 @@ public class BookingServiceImpl implements BookingService {
                     .status(BookingStatus.WAITING)
                     .build();
             validation(bookingDto);
+            log.debug(LogMessages.BOOKING_ITEM.label, item.getId());
             return BookingMap.mapToBookingDto(bookingRepository.save(BookingMap.mapToBooking(bookingDto, item, user)));
         } else {
-            throw new NotFoundException("Item not found.");
+            throw new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label);
         }
     }
 
     @Override
     public BookingDto bookingConfirm(Long userId, Long bookingId, boolean approved) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Booking not found."));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_BOOKING.label));
         if (Objects.equals(booking.getItem().getOwner().getId(), userId)) {
-            if(booking.getBookingStatus().equals(BookingStatus.WAITING)){
+            if (booking.getBookingStatus().equals(BookingStatus.WAITING)) {
                 if (approved) {
                     booking.setBookingStatus(BookingStatus.APPROVED);
                 } else {
                     booking.setBookingStatus(BookingStatus.REJECTED);
                 }
+                log.debug(LogMessages.BOOKING_CONFIRM.label, bookingId);
                 return BookingMap.mapToBookingDto(bookingRepository.save(booking));
             } else {
-                throw new NotStateException("State is approved.");
+                throw new NotStateException(ExceptionMessages.APPROVED_STATE.label);
             }
         } else {
-            throw new NotFoundException("Item not found.");
+            throw new NotBookingException(ExceptionMessages.NOT_FOUND_BOOKING.label);
         }
     }
 
     @Override
     public BookingDto getByIdBooking(Long userId, Long bookingId) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Booking not found."));
-        if(booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId){
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotBookingException(ExceptionMessages.NOT_FOUND_BOOKING.label));
+        if (Objects.equals(booking.getBooker().getId(), userId) || Objects.equals(booking.getItem().getOwner().getId(), userId)) {
+            log.debug(LogMessages.BOOKING_ID.label, bookingId);
             return BookingMap.mapToBookingDto(bookingRepository.getByIdBooking(bookingId, userId));
         } else {
-            throw new NotFoundException("Booking not found.");
+            throw new NotBookingException(ExceptionMessages.NOT_FOUND_BOOKING.label);
         }
     }
 
     @Override
     public List<BookingDto> getByIdListBookings(Long userId, String state) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotOwnerException("user not found."));
+        validationExistUser(userId);
         StateStatus stateStatus = StateStatus.valueOfLabel(state);
         if (stateStatus != null) {
             switch (stateStatus) {
                 case ALL:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByBookerId(userId));
+                    log.debug(LogMessages.BOOKING_USER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByBookerIdAll(userId));
                 case CURRENT:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatus(userId, BookingStatus.APPROVED.label));
+                    log.debug(LogMessages.BOOKING_USER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusCurrent(userId, LocalDateTime.now()));
                 case PAST:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatus(userId, BookingStatus.CANCELED.label));
+                    log.debug(LogMessages.BOOKING_USER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusPast(userId, LocalDateTime.now()));
                 case FUTURE:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusFuture(userId, BookingStatus.WAITING.label, BookingStatus.APPROVED.label));
+                    log.debug(LogMessages.BOOKING_USER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusFuture(userId, LocalDateTime.now()));
                 case WAITING:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatus(userId, BookingStatus.WAITING.label));
+                    log.debug(LogMessages.BOOKING_USER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusWaiting(userId, BookingStatus.WAITING));
                 case REJECTED:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatus(userId, BookingStatus.REJECTED.label));
+                    log.debug(LogMessages.BOOKING_USER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusRejected(userId, BookingStatus.REJECTED));
                 default:
                     return List.of();
             }
         } else {
-            throw new NotStateException("Unknown state: " + state);
+            throw new NotStateException(ExceptionMessages.UNKNOWN_STATE.label + state);
         }
     }
 
     @Override
     public List<BookingDto> getByIdOwnerBookingItems(Long userId, String state) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("user not found."));
+        validationExistUser(userId);
         StateStatus stateStatus = StateStatus.valueOfLabel(state);
         if (stateStatus != null) {
             switch (stateStatus) {
                 case ALL:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByOwnerId(userId));
+                    log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByOwnerIdAll(userId));
                 case CURRENT:
-                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatus(userId, BookingStatus.APPROVED.label));
+                    log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusCurrent(userId, LocalDateTime.now()));
                 case PAST:
-                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatus(userId, BookingStatus.CANCELED.label));
+                    log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusPast(userId, LocalDateTime.now()));
                 case FUTURE:
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(userId, BookingStatus.WAITING.label, BookingStatus.APPROVED.label));
+                    log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(userId, LocalDateTime.now()));
                 case WAITING:
-                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatus(userId, BookingStatus.WAITING.label));
+                    log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusWaiting(userId, BookingStatus.WAITING));
                 case REJECTED:
-                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatus(userId, BookingStatus.REJECTED.label));
+                    log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusRejected(userId, BookingStatus.REJECTED));
                 default:
                     return List.of();
             }
         } else {
-            throw new NotStateException("Unknown state: " + state);
+            throw new NotStateException(ExceptionMessages.UNKNOWN_STATE.label + state);
         }
     }
 
     void validation(BookingDto bookingDto) {
         if (bookingDto.getEnd().isBefore(bookingDto.getStart()) || bookingDto.getEnd().isEqual(bookingDto.getStart())) {
-            throw new ValidException("End time is before start time.");
+            throw new ValidException(ExceptionMessages.END_BEFORE_START.label);
         }
         if (!bookingDto.getItem().getAvailable()) {
-            throw new ValidException("The item is unavailable.");
+            throw new ValidException(ExceptionMessages.ITEM_UNAVAILABLE.label);
         }
+    }
+
+    void validationExistUser(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotOwnerException(ExceptionMessages.NOT_FOUND_USER.label));
     }
 }

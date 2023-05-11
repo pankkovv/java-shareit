@@ -9,7 +9,6 @@ import java.util.List;
 
 @Component
 public class UserMap {
-
     public static User mapToUser(UserDto userDto) {
         return User.builder()
                 .id(userDto.getId())
@@ -33,5 +32,4 @@ public class UserMap {
         }
         return userDtoList;
     }
-
 }

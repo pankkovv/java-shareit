@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMap;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
@@ -20,7 +19,6 @@ import java.util.List;
 @Slf4j
 public class UserController {
     private final UserService userService;
-    private final UserMap userMap;
 
     @GetMapping
     public List<UserDto> getAllUsers() {

@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentShort;
-import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.comment.service.CommentService;
 import ru.practicum.shareit.item.dto.ItemDto;
-
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.messages.LogMessages;
@@ -28,6 +26,7 @@ import java.util.List;
 public class ItemController {
     private final ItemService itemService;
     private final CommentService commentService;
+
     @GetMapping
     public List<ItemDtoWithBookingAndComments> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.debug(LogMessages.TRY_GET.label, userId);
@@ -53,7 +52,8 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @Valid @RequestBody CommentShort commentShort){
+    public CommentDto addComment(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @Valid @RequestBody CommentShort commentShort) {
+        log.debug(LogMessages.TRY_COMMENT_ADD.label, itemId);
         return commentService.addComment(userId, itemId, commentShort);
     }
 

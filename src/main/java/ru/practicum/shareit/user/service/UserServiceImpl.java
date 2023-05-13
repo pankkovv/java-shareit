@@ -7,6 +7,7 @@ import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMap;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
@@ -48,5 +49,10 @@ class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotOwnerException(ExceptionMessages.NOT_FOUND_USER.label));
     }
 }

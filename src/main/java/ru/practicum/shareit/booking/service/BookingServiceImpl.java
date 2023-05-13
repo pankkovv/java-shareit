@@ -10,13 +10,16 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.booking.status.StateStatus;
-import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.exception.NotBookingException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotStateException;
+import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -28,16 +31,14 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Slf4j
 public class BookingServiceImpl implements BookingService {
-    private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
+    private final UserService userService;
+    private final ItemService itemService;
 
     @Override
     public BookingDto bookingAdd(Long userId, BookingShort bookingShort) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotOwnerException(ExceptionMessages.NOT_FOUND_USER.label));
-        Item item = itemRepository.findById(bookingShort.getItemId())
-                .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label));
+        User user = userService.findById(userId);
+        Item item = itemService.getById(bookingShort.getItemId());
         if (!item.getOwner().equals(user)) {
             BookingDto bookingDto = BookingDto.builder()
                     .start(bookingShort.getStart())
@@ -89,8 +90,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getByIdListBookings(Long userId, String state) {
         validationExistUser(userId);
-        try{
-        StateStatus stateStatus = StateStatus.valueOf(state);
+        try {
+            StateStatus stateStatus = StateStatus.valueOf(state);
             switch (stateStatus) {
                 case ALL:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
@@ -113,7 +114,7 @@ public class BookingServiceImpl implements BookingService {
                 default:
                     return List.of();
             }
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new NotStateException(ExceptionMessages.UNKNOWN_STATE.label + state);
         }
     }
@@ -121,8 +122,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getByIdOwnerBookingItems(Long userId, String state) {
         validationExistUser(userId);
-        try{
-        StateStatus stateStatus = StateStatus.valueOf(state);
+        try {
+            StateStatus stateStatus = StateStatus.valueOf(state);
             switch (stateStatus) {
                 case ALL:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
@@ -145,7 +146,7 @@ public class BookingServiceImpl implements BookingService {
                 default:
                     return List.of();
             }
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new NotStateException(ExceptionMessages.UNKNOWN_STATE.label + state);
         }
     }
@@ -160,7 +161,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     void validationExistUser(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotOwnerException(ExceptionMessages.NOT_FOUND_USER.label));
+        userService.findById(userId);
     }
 }

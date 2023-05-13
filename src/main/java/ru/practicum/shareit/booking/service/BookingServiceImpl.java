@@ -89,8 +89,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getByIdListBookings(Long userId, String state) {
         validationExistUser(userId);
-        StateStatus stateStatus = StateStatus.valueOfLabel(state);
-        if (stateStatus != null) {
+        try{
+        StateStatus stateStatus = StateStatus.valueOf(state);
             switch (stateStatus) {
                 case ALL:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
@@ -113,7 +113,7 @@ public class BookingServiceImpl implements BookingService {
                 default:
                     return List.of();
             }
-        } else {
+        } catch (IllegalArgumentException e){
             throw new NotStateException(ExceptionMessages.UNKNOWN_STATE.label + state);
         }
     }
@@ -121,8 +121,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getByIdOwnerBookingItems(Long userId, String state) {
         validationExistUser(userId);
-        StateStatus stateStatus = StateStatus.valueOfLabel(state);
-        if (stateStatus != null) {
+        try{
+        StateStatus stateStatus = StateStatus.valueOf(state);
             switch (stateStatus) {
                 case ALL:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
@@ -145,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
                 default:
                     return List.of();
             }
-        } else {
+        } catch (IllegalArgumentException e){
             throw new NotStateException(ExceptionMessages.UNKNOWN_STATE.label + state);
         }
     }

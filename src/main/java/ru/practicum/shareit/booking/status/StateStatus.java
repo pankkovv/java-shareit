@@ -13,13 +13,4 @@ public enum StateStatus {
     StateStatus(String label) {
         this.label = label;
     }
-
-    public static StateStatus valueOfLabel(String label) {
-        for (StateStatus e : values()) {
-            if (e.label.equals(label)) {
-                return e;
-            }
-        }
-        return null;
-    }
 }

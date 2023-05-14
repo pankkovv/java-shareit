@@ -3,9 +3,11 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentShort;
+import ru.practicum.shareit.comment.service.CommentService;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMap;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.messages.LogMessages;
 
@@ -23,18 +25,18 @@ import java.util.List;
 @Slf4j
 public class ItemController {
     private final ItemService itemService;
-    private final ItemMap itemMap;
+    private final CommentService commentService;
 
     @GetMapping
-    public List<ItemDto> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDtoWithBookingAndComments> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.debug(LogMessages.TRY_GET.label, userId);
-        return itemService.getAllItem(userId);
+        return itemService.getByUserId(userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getByItemId(@PathVariable Long itemId) {
+    public ItemDtoWithBookingAndComments getByItemId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
         log.debug(LogMessages.TRY_GET_ID.label, itemId);
-        return itemService.getById(itemId);
+        return itemService.getByItemId(userId, itemId);
     }
 
     @GetMapping("/search")
@@ -45,15 +47,19 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
-        Item item = itemMap.transferFromObj(itemDto);
-        log.debug(LogMessages.TRY_ADD.label, item);
-        return itemService.save(userId, item);
+        log.debug(LogMessages.TRY_ADD.label, itemDto);
+        return itemService.saveItem(userId, itemDto);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @Valid @RequestBody CommentShort commentShort) {
+        log.debug(LogMessages.TRY_COMMENT_ADD.label, itemId);
+        return commentService.addComment(userId, itemId, commentShort);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
-        Item item = itemMap.transferFromObj(itemDto);
-        log.debug(LogMessages.TRY_UPDATE.label, item);
-        return itemService.update(userId, itemId, item);
+        log.debug(LogMessages.TRY_UPDATE.label, itemDto);
+        return itemService.updateItem(userId, itemId, itemDto);
     }
 }

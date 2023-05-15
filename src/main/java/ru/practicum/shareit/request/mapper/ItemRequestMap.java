@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemRequestMap {
-    public ItemRequest mapToItemRequest(ItemRequestDto itemRequestDto, User user) {
+    public static ItemRequest mapToItemRequest(ItemRequestDto itemRequestDto, User user) {
         return ItemRequest.builder()
                 .id(itemRequestDto.getId())
                 .description(itemRequestDto.getDescription())
@@ -16,15 +16,19 @@ public class ItemRequestMap {
                 .build();
     }
 
-    public ItemRequestDto mapToItemRequestDto(ItemRequest itemRequest) {
-        return ItemRequestDto.builder()
-                .id(itemRequest.getId())
-                .description(itemRequest.getDescription())
-                .requestor(itemRequest.getRequestor().getId())
-                .build();
+    public static ItemRequestDto mapToItemRequestDto(ItemRequest itemRequest) {
+        if(itemRequest != null){
+            return ItemRequestDto.builder()
+                    .id(itemRequest.getId())
+                    .description(itemRequest.getDescription())
+                    .requestor(itemRequest.getRequestor().getId())
+                    .build();
+        } else {
+            return null;
+        }
     }
 
-    public List<ItemRequestDto> mapToUserDto(List<ItemRequest> itemRequestList) {
+    public static List<ItemRequestDto> mapToUserDto(List<ItemRequest> itemRequestList) {
         List<ItemRequestDto> itemRequestDtoList = new ArrayList<>();
         for (ItemRequest itemRequest : itemRequestList) {
             itemRequestDtoList.add(mapToItemRequestDto(itemRequest));

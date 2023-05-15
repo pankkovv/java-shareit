@@ -11,10 +11,14 @@ import ru.practicum.shareit.comment.service.CommentService;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.mapper.ItemMap;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.messages.ExceptionMessages;
+import ru.practicum.shareit.request.mapper.ItemRequestMap;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -30,6 +34,7 @@ class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final CommentService commentService;
+    private final ItemRequestService itemRequestService;
 
     @Override
     public List<ItemDtoWithBookingAndComments> getByUserId(Long userId) {
@@ -67,7 +72,11 @@ class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto saveItem(Long userId, ItemDto itemDto) {
         User user = userService.findById(userId);
-        return ItemMap.mapToItemDto(itemRepository.save(ItemMap.mapToItem(itemDto, user)));
+        ItemRequest itemRequest = null;
+        if(itemDto.getRequestId() != null){
+           itemRequest = ItemRequestMap.mapToItemRequest(itemRequestService.getRequestId(itemDto.getRequestId()), user);
+        }
+            return ItemMap.mapToItemDto(itemRepository.save(ItemMap.mapToItem(itemDto, user, itemRequest)));
     }
 
     @Override
@@ -83,8 +92,8 @@ class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             itemDtoOld.setAvailable(itemDto.getAvailable());
         }
-        if (itemDto.getRequest() != null) {
-            itemDtoOld.setRequest(itemDto.getRequest());
+        if (itemDto.getRequestId() != null) {
+            itemDtoOld.setRequestId(itemDto.getRequestId());
         }
         return saveItem(userId, itemDtoOld);
     }
@@ -93,6 +102,11 @@ class ItemServiceImpl implements ItemService {
     public Item getById(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label));
+    }
+
+    @Override
+    public List<ItemResponseDto> getRequestById(Long requestId) {
+        return ItemMap.mapToItemResponseDto(itemRepository.findItemByRequest_Id(requestId));
     }
 
     void validateExistUser(Long userId) {

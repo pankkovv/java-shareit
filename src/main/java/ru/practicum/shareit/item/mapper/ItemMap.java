@@ -94,19 +94,4 @@ public class ItemMap {
                 .collect(Collectors.toList());
     }
 
-//    public static ItemResponseDto mapToItemResponseDto(Item item){
-//        return ItemResponseDto.builder()
-//                .requestId(item.getRequest().getId())
-//                .name(item.getName())
-//                .ownerId(item.getOwner().getId())
-//                .build();
-//    }
-//
-//    public static List<ItemResponseDto> mapToItemResponseDto(List<Item> listItem){
-//        List<ItemResponseDto> listItemResponseDto = new ArrayList<>();
-//        for (Item item : listItem) {
-//            listItemResponseDto.add(mapToItemResponseDto(item));
-//        }
-//        return listItemResponseDto;
-//    }
 }

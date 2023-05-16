@@ -14,7 +14,6 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.NotStateException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.mapper.ItemMap;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -109,21 +108,18 @@ class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label));
     }
 
-
     void validateExistUser(Long userId) {
         userService.findById(userId);
     }
 
-    Pageable paged(Integer from, Integer size){
-        Pageable page;
-        if(from != null && size != null){
-            if(from  < 0 || size < 0) {
-                throw new NotStateException("From not is positive.");
+    Pageable paged(Integer from, Integer size) {
+        if (from != null && size != null) {
+            if (from < 0) {
+                throw new NotStateException("The number of the first element cannot be negative.");
             }
-            page = PageRequest.of(from > 0 ? from / size : 0, size);
+            return PageRequest.of(from > 0 ? from / size : 0, size);
         } else {
-            page = PageRequest.of( 0, 4);
+            return PageRequest.of(0, 4);
         }
-        return page;
     }
 }

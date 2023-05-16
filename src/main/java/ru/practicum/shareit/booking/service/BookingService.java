@@ -2,7 +2,9 @@ package ru.practicum.shareit.booking.service;
 
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShort;
+import ru.practicum.shareit.booking.model.Booking;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingService {
@@ -15,4 +17,5 @@ public interface BookingService {
     List<BookingDto> getByIdListBookings(Long userId, String state, Integer from, Integer size);
 
     List<BookingDto> getByIdOwnerBookingItems(Long userId, String state, Integer from, Integer size);
+
 }

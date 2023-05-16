@@ -39,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto bookingAdd(Long userId, BookingShort bookingShort) {
-        User user = userService.findById(userId);
+        User user = validationExistUser(userId);
         Item item = itemService.getById(bookingShort.getItemId());
         if (!item.getOwner().equals(user)) {
             BookingDto bookingDto = BookingDto.builder()
@@ -164,8 +164,8 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    void validationExistUser(Long userId) {
-        userService.findById(userId);
+    User validationExistUser(Long userId) {
+        return userService.findById(userId);
     }
 
     Pageable paged(Integer from, Integer size){

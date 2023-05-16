@@ -7,7 +7,8 @@ import lombok.Data;
 @Builder
 public class ItemResponseDto {
     private Long id;
-    private Long itemId;
-    private String title;
+    private String name;
     private Long ownerId;
+    private Long itemId;
+    private Long requestId;
 }

@@ -23,8 +23,8 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String description;
-    @Column(name = "start_date")
-    private LocalDateTime start;
+    @Column(name = "created")
+    private LocalDateTime created;
     @ManyToOne
     @JoinColumn(name = "requestor_id")
     private User requestor;

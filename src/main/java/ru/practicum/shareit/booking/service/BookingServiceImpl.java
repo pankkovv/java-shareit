@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShort;
@@ -88,29 +90,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getByIdListBookings(Long userId, String state) {
+    public List<BookingDto> getByIdListBookings(Long userId, String state, Integer from, Integer size) {
+        Pageable page = paged(from, size);
         validationExistUser(userId);
         try {
             StateStatus stateStatus = StateStatus.valueOf(state);
             switch (stateStatus) {
                 case ALL:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByBookerIdAll(userId));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByBookerIdAll(userId, page));
                 case CURRENT:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusCurrent(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusCurrent(userId, LocalDateTime.now(), page));
                 case PAST:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusPast(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusPast(userId, LocalDateTime.now(), page));
                 case FUTURE:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusFuture(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusFuture(userId, LocalDateTime.now(), page));
                 case WAITING:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusWaiting(userId, BookingStatus.WAITING));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusWaiting(userId, BookingStatus.WAITING, page));
                 case REJECTED:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusRejected(userId, BookingStatus.REJECTED));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusRejected(userId, BookingStatus.REJECTED, page));
                 default:
                     return List.of();
             }
@@ -120,29 +123,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getByIdOwnerBookingItems(Long userId, String state) {
+    public List<BookingDto> getByIdOwnerBookingItems(Long userId, String state, Integer from, Integer size) {
+        Pageable page = paged(from, size);
         validationExistUser(userId);
         try {
             StateStatus stateStatus = StateStatus.valueOf(state);
             switch (stateStatus) {
                 case ALL:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByOwnerIdAll(userId));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByOwnerIdAll(userId, page));
                 case CURRENT:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusCurrent(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusCurrent(userId, LocalDateTime.now(), page));
                 case PAST:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusPast(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusPast(userId, LocalDateTime.now(), page));
                 case FUTURE:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(userId, LocalDateTime.now(), page));
                 case WAITING:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusWaiting(userId, BookingStatus.WAITING));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusWaiting(userId, BookingStatus.WAITING, page));
                 case REJECTED:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusRejected(userId, BookingStatus.REJECTED));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusRejected(userId, BookingStatus.REJECTED, page));
                 default:
                     return List.of();
             }
@@ -162,5 +166,18 @@ public class BookingServiceImpl implements BookingService {
 
     void validationExistUser(Long userId) {
         userService.findById(userId);
+    }
+
+    Pageable paged(Integer from, Integer size){
+        Pageable page;
+        if(from != null && size != null){
+            if(from  < 0 || size < 0) {
+                throw new NotStateException("From not is positive.");
+            }
+            page = PageRequest.of(from > 0 ? from / size : 0, size);
+        } else {
+            page = PageRequest.of( 0, 4);
+        }
+        return page;
     }
 }

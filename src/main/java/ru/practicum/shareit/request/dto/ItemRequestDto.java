@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 
 import javax.validation.constraints.NotBlank;
@@ -20,7 +21,7 @@ public class ItemRequestDto {
     @NotBlank
     @NotEmpty
     private String description;
-    private LocalDateTime start;
+    private LocalDateTime created;
     private Long requestor;
-    private List<ItemResponseDto> response;
+    private List<ItemDto> items;
 }

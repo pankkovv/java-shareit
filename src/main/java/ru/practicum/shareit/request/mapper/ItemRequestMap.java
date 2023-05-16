@@ -13,6 +13,7 @@ public class ItemRequestMap {
                 .id(itemRequestDto.getId())
                 .description(itemRequestDto.getDescription())
                 .requestor(user)
+                .created(itemRequestDto.getCreated())
                 .build();
     }
 
@@ -22,13 +23,14 @@ public class ItemRequestMap {
                     .id(itemRequest.getId())
                     .description(itemRequest.getDescription())
                     .requestor(itemRequest.getRequestor().getId())
+                    .created(itemRequest.getCreated())
                     .build();
         } else {
             return null;
         }
     }
 
-    public static List<ItemRequestDto> mapToUserDto(List<ItemRequest> itemRequestList) {
+    public static List<ItemRequestDto> mapToItemRequestDto(List<ItemRequest> itemRequestList) {
         List<ItemRequestDto> itemRequestDtoList = new ArrayList<>();
         for (ItemRequest itemRequest : itemRequestList) {
             itemRequestDtoList.add(mapToItemRequestDto(itemRequest));

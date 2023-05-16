@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingWithDate;
@@ -9,6 +11,7 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.service.CommentService;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotStateException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
@@ -37,11 +40,12 @@ class ItemServiceImpl implements ItemService {
     private final ItemRequestService itemRequestService;
 
     @Override
-    public List<ItemDtoWithBookingAndComments> getByUserId(Long userId) {
+    public List<ItemDtoWithBookingAndComments> getByUserId(Long userId, Integer from, Integer size) {
+        Pageable page = paged(from, size);
         HashMap<Long, BookingWithDate> bookingsLast = new HashMap<>();
         HashMap<Long, BookingWithDate> bookingsNext = new HashMap<>();
         HashMap<Long, List<CommentDto>> comments = new HashMap<>();
-        List<Item> items = itemRepository.findByOwnerId(userId);
+        List<Item> items = itemRepository.findByOwnerId(userId, page);
         for (Item i : items) {
             bookingsLast.put(i.getId(), BookingMap.mapToBookingWithoutDate(bookingRepository.findByItemIdLast(userId, i.getId(), LocalDateTime.now())));
             bookingsNext.put(i.getId(), BookingMap.mapToBookingWithoutDate(bookingRepository.findByItemIdNext(userId, i.getId(), LocalDateTime.now())));
@@ -61,9 +65,10 @@ class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String text) {
+    public List<ItemDto> search(String text, Integer from, Integer size) {
         if (!text.isEmpty()) {
-            return ItemMap.mapToItemDto(itemRepository.search(text));
+            Pageable page = paged(from, size);
+            return ItemMap.mapToItemDto(itemRepository.search(text, page));
         } else {
             return List.of();
         }
@@ -73,10 +78,10 @@ class ItemServiceImpl implements ItemService {
     public ItemDto saveItem(Long userId, ItemDto itemDto) {
         User user = userService.findById(userId);
         ItemRequest itemRequest = null;
-        if(itemDto.getRequestId() != null){
-           itemRequest = ItemRequestMap.mapToItemRequest(itemRequestService.getRequestId(itemDto.getRequestId()), user);
+        if (itemDto.getRequestId() != null) {
+            itemRequest = ItemRequestMap.mapToItemRequest(itemRequestService.getRequestId(userId, itemDto.getRequestId()), user);
         }
-            return ItemMap.mapToItemDto(itemRepository.save(ItemMap.mapToItem(itemDto, user, itemRequest)));
+        return ItemMap.mapToItemDto(itemRepository.save(ItemMap.mapToItem(itemDto, user, itemRequest)));
     }
 
     @Override
@@ -104,12 +109,21 @@ class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_FOUND_ITEM.label));
     }
 
-    @Override
-    public List<ItemResponseDto> getRequestById(Long requestId) {
-        return ItemMap.mapToItemResponseDto(itemRepository.findItemByRequest_Id(requestId));
-    }
 
     void validateExistUser(Long userId) {
         userService.findById(userId);
+    }
+
+    Pageable paged(Integer from, Integer size){
+        Pageable page;
+        if(from != null && size != null){
+            if(from  < 0 || size < 0) {
+                throw new NotStateException("From not is positive.");
+            }
+            page = PageRequest.of(from > 0 ? from / size : 0, size);
+        } else {
+            page = PageRequest.of( 0, 4);
+        }
+        return page;
     }
 }

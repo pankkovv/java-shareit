@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -31,11 +32,12 @@ import java.util.Objects;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Data
 @Slf4j
 public class BookingServiceImpl implements BookingService {
-    private final BookingRepository bookingRepository;
-    private final UserService userService;
-    private final ItemService itemService;
+    private BookingRepository bookingRepository;
+    private UserService userService;
+    private ItemService itemService;
 
     @Override
     public BookingDto bookingAdd(Long userId, BookingShort bookingShort) {
@@ -155,7 +157,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    void validation(BookingDto bookingDto) {
+    public void validation(BookingDto bookingDto) {
         if (bookingDto.getEnd().isBefore(bookingDto.getStart()) || bookingDto.getEnd().isEqual(bookingDto.getStart())) {
             throw new ValidException(ExceptionMessages.END_BEFORE_START.label);
         }
@@ -168,11 +170,11 @@ public class BookingServiceImpl implements BookingService {
         return userService.findById(userId);
     }
 
-    Pageable paged(Integer from, Integer size){
+    public Pageable paged(Integer from, Integer size){
         Pageable page;
         if(from != null && size != null){
             if(from  < 0 || size < 0) {
-                throw new NotStateException("From not is positive.");
+                throw new NotStateException(ExceptionMessages.FROM_NOT_POSITIVE.label);
             }
             page = PageRequest.of(from > 0 ? from / size : 0, size);
         } else {

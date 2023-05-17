@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.exception.NotStateException;
 import ru.practicum.shareit.item.mapper.ItemMap;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.messages.ExceptionMessages;
+import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMap;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -23,6 +25,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRepository itemRepository;
@@ -33,6 +36,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = validationExistUser(userId);
         itemRequestDto.setRequestor(userId);
         itemRequestDto.setCreated(LocalDateTime.now());
+        log.debug(LogMessages.ADD_REQUEST.label, itemRequestDto);
         return ItemRequestMap.mapToItemRequestDto(itemRequestRepository.save(ItemRequestMap.mapToItemRequest(itemRequestDto, user)));
     }
 
@@ -43,6 +47,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         for (ItemRequestDto item : listItemRequestDto) {
             item.setItems(ItemMap.mapToItemDto(itemRepository.findItemByRequest_Id(item.getId())));
         }
+        log.debug(LogMessages.GET_REQUEST.label, userId);
         return listItemRequestDto;
     }
 
@@ -57,6 +62,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             for (ItemRequestDto item : listItemRequestDto) {
                 item.setItems(ItemMap.mapToItemDto(itemRepository.findItemByRequest_Id(item.getId())));
             }
+            log.debug(LogMessages.GET_REQUEST_ALL.label, userId);
             return listItemRequestDto;
         } else {
             throw new NotStateException(ExceptionMessages.FROM_NOT_POSITIVE.label);
@@ -68,6 +74,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         validationExistUser(userId);
         ItemRequestDto itemRequestDto = ItemRequestMap.mapToItemRequestDto(itemRequestRepository.findById(requestId).orElseThrow(() -> new NotRequestException(ExceptionMessages.NOT_FOUND_REQUEST.label)));
         itemRequestDto.setItems(ItemMap.mapToItemDto(itemRepository.findItemByRequest_Id(requestId)));
+        log.debug(LogMessages.GET_REQUEST_ID.label, requestId);
         return itemRequestDto;
     }
 

@@ -56,7 +56,7 @@ public class BookingServiceImplIntegrationTest {
         User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
 
         UserDto userDto = UserDto.builder().id(1L).name("User").email("user@user.ru").build();
-        UserDto userOwnerDto = UserDto.builder().id(1L).name("Owner").email("owner@user.ru").build();
+        UserDto userOwnerDto = UserDto.builder().id(2L).name("Owner").email("owner@user.ru").build();
 
         Item item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
         ItemDto itemDto = ItemDto.builder().name("Item").description("Item items").available(true).owner(owner.getId()).requestId(null).build();
@@ -69,7 +69,7 @@ public class BookingServiceImplIntegrationTest {
 
         itemService.saveItem(owner.getId(), itemDto);
 
-        bookingService.bookingAdd(user.getId(), bookingShort);
+        bookingService.bookingAdd(userDto.getId(), bookingShort);
 
         TypedQuery<Booking> query = em.createQuery("Select u from Booking u where u.booker.id = :bookerId", Booking.class);
         Booking booking = query.setParameter("bookerId", user.getId()).getSingleResult();

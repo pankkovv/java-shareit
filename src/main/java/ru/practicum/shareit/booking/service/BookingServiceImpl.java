@@ -1,8 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,12 +31,14 @@ import java.util.Objects;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
-@Data
+@NoArgsConstructor
 @Slf4j
 public class BookingServiceImpl implements BookingService {
+    @Autowired
     private BookingRepository bookingRepository;
+    @Autowired
     private UserService userService;
+    @Autowired
     private ItemService itemService;
 
     @Override

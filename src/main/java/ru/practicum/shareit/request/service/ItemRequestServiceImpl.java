@@ -1,11 +1,11 @@
 package ru.practicum.shareit.request.service;
 
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.NotRequestException;
 import ru.practicum.shareit.exception.NotStateException;
 import ru.practicum.shareit.item.mapper.ItemMap;
@@ -24,18 +24,23 @@ import java.util.List;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Slf4j
 public class ItemRequestServiceImpl implements ItemRequestService {
-    private final ItemRequestRepository itemRequestRepository;
-    private final ItemRepository itemRepository;
-    private final UserService userService;
+    @Autowired
+    private ItemRequestRepository itemRequestRepository;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private UserService userService;
 
     @Override
     public ItemRequestDto addRequest(Long userId, ItemRequestDto itemRequestDto) {
         User user = validationExistUser(userId);
         itemRequestDto.setRequestor(userId);
-        itemRequestDto.setCreated(LocalDateTime.now());
+        if(itemRequestDto.getCreated() == null){
+            itemRequestDto.setCreated(LocalDateTime.now());
+        }
         log.debug(LogMessages.ADD_REQUEST.label, itemRequestDto);
         return ItemRequestMap.mapToItemRequestDto(itemRequestRepository.save(ItemRequestMap.mapToItemRequest(itemRequestDto, user)));
     }

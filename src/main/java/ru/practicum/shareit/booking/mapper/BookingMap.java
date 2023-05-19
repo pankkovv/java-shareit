@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor
 public class BookingMap {
     public static Booking mapToBooking(BookingDto bookingDto, Item item, User user) {
         return Booking.builder()

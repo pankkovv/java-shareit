@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotOwnerException;
@@ -15,9 +17,10 @@ import java.util.List;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+@NoArgsConstructor
 class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<UserDto> getAllUsers() {

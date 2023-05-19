@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,19 +27,26 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
+import javax.persistence.Access;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+@NoArgsConstructor
+@Slf4j
 class ItemServiceImpl implements ItemService {
-    private final ItemRepository itemRepository;
-    private final BookingRepository bookingRepository;
-    private final UserService userService;
-    private final CommentService commentService;
-    private final ItemRequestService itemRequestService;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private BookingRepository bookingRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private ItemRequestService itemRequestService;
 
     @Override
     public List<ItemDtoWithBookingAndComments> getByUserId(Long userId, Integer from, Integer size) {
@@ -112,10 +122,10 @@ class ItemServiceImpl implements ItemService {
         userService.findById(userId);
     }
 
-    Pageable paged(Integer from, Integer size) {
+    public Pageable paged(Integer from, Integer size) {
         if (from != null && size != null) {
             if (from < 0) {
-                throw new NotStateException("The number of the first element cannot be negative.");
+                throw new NotStateException(ExceptionMessages.FROM_NOT_POSITIVE.label);
             }
             return PageRequest.of(from > 0 ? from / size : 0, size);
         } else {

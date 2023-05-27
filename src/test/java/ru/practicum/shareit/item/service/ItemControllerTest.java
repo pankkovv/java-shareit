@@ -1,28 +1,34 @@
 package ru.practicum.shareit.item.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentDto;
-import ru.practicum.shareit.comment.dto.CommentShort;
 import ru.practicum.shareit.comment.service.CommentService;
+import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
-import ru.practicum.shareit.messages.LogMessages;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@WebMvcTest(controllers = UserController.class)
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class ItemControllerTest  {
+@WebMvcTest(controllers = ItemController.class)
+
+public class ItemControllerTest {
     @Autowired
     ObjectMapper mapper;
 
@@ -35,33 +41,136 @@ public class ItemControllerTest  {
     private MockMvc mvc;
 
 
-    @GetMapping
-    public List<ItemDtoWithBookingAndComments> getByUserId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam(required = false) Integer from, @RequestParam (required = false) Integer size) {
-        return itemService.getByUserId(userId, from, size);
+    @Test
+    void getByUserIdTest() throws Exception {
+        LocalDateTime end = LocalDateTime.now().plusMinutes(1);
+        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
+        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
+        Item item = Item.builder().owner(owner).name("Item").description("Item items").available(true).request(null).build();
+        List<CommentDto> listCommentDto = List.of(CommentDto.builder().text("Text test").authorName(user.getName()).created(end).build());
+        List<ItemDtoWithBookingAndComments> itemDtoWithBookingAndCommentsList = List.of(ItemDtoWithBookingAndComments.builder().id(1L).owner(owner.getId()).description("Item items").available(true).comments(listCommentDto).name(item.getName()).build());
+
+        when(itemService.getByUserId(any(), any(), any()))
+                .thenReturn(itemDtoWithBookingAndCommentsList);
+
+        mvc.perform(get("/items")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(itemDtoWithBookingAndCommentsList)));
     }
 
-    @GetMapping("/{itemId}")
-    public ItemDtoWithBookingAndComments getByItemId(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
-        return itemService.getByItemId(userId, itemId);
+    @Test
+    void getByItemIdTest() throws Exception {
+        LocalDateTime end = LocalDateTime.of(2023, 5, 27, 14, 50, 11);
+
+        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
+        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
+        Item item = Item.builder().owner(owner).name("Item").description("Item items").available(true).request(null).build();
+        List<CommentDto> listCommentDto = List.of(CommentDto.builder().text("Text test").authorName(user.getName()).created(end).build());
+
+        ItemDtoWithBookingAndComments itemDtoWithBookingAndComments = ItemDtoWithBookingAndComments.builder().id(1L).owner(owner.getId()).name(item.getName()).description("Item items").available(true).comments(listCommentDto).build();
+
+        when(itemService.getByItemId(anyLong(), anyLong()))
+                .thenReturn(itemDtoWithBookingAndComments);
+
+        mvc.perform(get("/items/1")
+                        .content(mapper.writeValueAsString(itemDtoWithBookingAndComments))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(itemDtoWithBookingAndComments.getId()), Long.class))
+                .andExpect(jsonPath("$.owner", is(itemDtoWithBookingAndComments.getOwner().intValue())))
+                .andExpect(jsonPath("$.name", is(itemDtoWithBookingAndComments.getName())))
+                .andExpect(jsonPath("$.description", is(itemDtoWithBookingAndComments.getDescription())))
+                .andExpect(jsonPath("$.available", is(itemDtoWithBookingAndComments.getAvailable())))
+                .andExpect(jsonPath("$.request", is(itemDtoWithBookingAndComments.getRequest())))
+                .andExpect(jsonPath("$.lastBooking", is(itemDtoWithBookingAndComments.getLastBooking())))
+                .andExpect(jsonPath("$.nextBooking", is(itemDtoWithBookingAndComments.getNextBooking())))
+                .andExpect(jsonPath("$.comments", notNullValue()));
     }
 
-    @GetMapping("/search")
-    public List<ItemDto> searchItem(@NotBlank @RequestParam String text, @RequestParam (required = false) Integer from, @RequestParam (required = false) Integer size) {
-        return itemService.search(text, from, size);
+    @Test
+    void searchItemTest() throws Exception {
+        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
+        List<ItemDto> listItemDto = List.of(ItemDto.builder().id(1L).name("Item").description("Item items").available(true).owner(user.getId()).requestId(null).build());
+        when(itemService.search(any(), anyInt(), anyInt()))
+                .thenReturn(listItemDto);
+
+        mvc.perform(get("/items/search?text=a&from=0&size=4")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(listItemDto)));
     }
 
-    @PostMapping
-    public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
-        return itemService.saveItem(userId, itemDto);
+    @Test
+    void addItemTest() throws Exception {
+        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
+        ItemDto itemDto = ItemDto.builder().name("Item").description("Item items").available(true).owner(owner.getId()).requestId(null).build();
+        when(itemService.saveItem(anyLong(), any()))
+                .thenReturn(itemDto);
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
+                .andExpect(jsonPath("$.name", is(itemDto.getName())))
+                .andExpect(jsonPath("$.description", is(itemDto.getDescription())))
+                .andExpect(jsonPath("$.available", is(itemDto.getAvailable())))
+                .andExpect(jsonPath("$.owner", is(itemDto.getOwner()), Long.class))
+                .andExpect(jsonPath("$.requestId", is(itemDto.getRequestId())));
     }
 
-    @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @Valid @RequestBody CommentShort commentShort) {
-        return commentService.addComment(userId, itemId, commentShort);
+    @Test
+    void addCommentTest() throws Exception {
+        LocalDateTime start = LocalDateTime.of(2023, 5, 27, 14, 49, 11);
+        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
+        CommentDto commentDto = CommentDto.builder().text("Text test").authorName(user.getName()).created(start).build();
+
+        when(commentService.addComment(anyLong(), anyLong(), any()))
+                .thenReturn(commentDto);
+
+        mvc.perform(post("/items/1/comment")
+                        .content(mapper.writeValueAsString(commentDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(commentDto.getId()), Long.class))
+                .andExpect(jsonPath("$.text", is(commentDto.getText())))
+                .andExpect(jsonPath("$.authorName", is(commentDto.getAuthorName())))
+                .andExpect(jsonPath("$.created", is(commentDto.getCreated().toString())));
     }
 
-    @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
-        return itemService.updateItem(userId, itemId, itemDto);
+    @Test
+    void updateItemTest() throws Exception {
+        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
+        ItemDto itemDtoUpdate = ItemDto.builder().owner(owner.getId()).name("Update").description("Update").available(false).requestId(null).build();
+        when(itemService.updateItem(anyLong(), anyLong(), any()))
+                .thenReturn(itemDtoUpdate);
+
+        mvc.perform(patch("/items/1")
+                        .content(mapper.writeValueAsString(itemDtoUpdate))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(itemDtoUpdate.getId()), Long.class))
+                .andExpect(jsonPath("$.name", is(itemDtoUpdate.getName())))
+                .andExpect(jsonPath("$.description", is(itemDtoUpdate.getDescription())))
+                .andExpect(jsonPath("$.available", is(itemDtoUpdate.getAvailable())))
+                .andExpect(jsonPath("$.owner", is(itemDtoUpdate.getOwner()), Long.class))
+                .andExpect(jsonPath("$.requestId", is(itemDtoUpdate.getRequestId())));
     }
 }

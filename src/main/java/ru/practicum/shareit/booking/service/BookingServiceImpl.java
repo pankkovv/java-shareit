@@ -172,15 +172,15 @@ public class BookingServiceImpl implements BookingService {
         return userService.findById(userId);
     }
 
-    public Pageable paged(Integer from, Integer size){
+    public Pageable paged(Integer from, Integer size) {
         Pageable page;
-        if(from != null && size != null){
-            if(from  < 0 || size < 0) {
+        if (from != null && size != null) {
+            if (from < 0 || size < 0) {
                 throw new NotStateException(ExceptionMessages.FROM_NOT_POSITIVE.label);
             }
             page = PageRequest.of(from > 0 ? from / size : 0, size);
         } else {
-            page = PageRequest.of( 0, 4);
+            page = PageRequest.of(0, 4);
         }
         return page;
     }

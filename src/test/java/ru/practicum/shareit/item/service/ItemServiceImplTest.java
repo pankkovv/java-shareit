@@ -70,7 +70,7 @@ class ItemServiceImplTest {
     //normal behavior
     @Test
     void getByUserIdTest() {
-        List<ItemDtoWithBookingAndComments> itemDtoWithBookingAndCommentsList =  List.of(ItemDtoWithBookingAndComments.builder().id(1L).owner(owner.getId()).name(item.getName()).description("Item items").available(true).comments(listCommentDto).build());
+        List<ItemDtoWithBookingAndComments> itemDtoWithBookingAndCommentsList = List.of(ItemDtoWithBookingAndComments.builder().id(1L).owner(owner.getId()).name(item.getName()).description("Item items").available(true).comments(listCommentDto).build());
         List<Item> listItem = List.of(Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build());
 
 
@@ -99,9 +99,9 @@ class ItemServiceImplTest {
 
     @Test
     void updateItemTest() {
-       Optional<Item> itemOpt = Optional.of(Item.builder().owner(owner).name("Item").description("Item items").available(true).request(null).build());
-       Item itemUpdate = Item.builder().owner(owner).name("Update").description("Update").available(false).request(null).build();
-       ItemDto itemDtoUpdate = ItemDto.builder().owner(owner.getId()).name("Update").description("Update").available(false).requestId(null).build();
+        Optional<Item> itemOpt = Optional.of(Item.builder().owner(owner).name("Item").description("Item items").available(true).request(null).build());
+        Item itemUpdate = Item.builder().owner(owner).name("Update").description("Update").available(false).request(null).build();
+        ItemDto itemDtoUpdate = ItemDto.builder().owner(owner.getId()).name("Update").description("Update").available(false).requestId(null).build();
 
 
         Mockito.when(itemRepository.findById(1L))
@@ -113,9 +113,9 @@ class ItemServiceImplTest {
         Mockito.when(commentService.getCommentsByItemId(anyLong()))
                 .thenReturn(listCommentDto);
         Mockito.when(userService.findById(anyLong()))
-                        .thenReturn(owner);
+                .thenReturn(owner);
         Mockito.when(itemRepository.save(itemUpdate))
-                        .thenReturn(itemUpdate);
+                .thenReturn(itemUpdate);
 
         assertEquals(itemDtoUpdate, itemService.updateItem(1L, 1L, itemDtoUpdate));
     }
@@ -125,6 +125,7 @@ class ItemServiceImplTest {
         Pageable page = PageRequest.of(0, 4);
         Assertions.assertEquals(page, itemService.paged(0, 4));
     }
+
     //Reaction to erroneous data
     @Test
     void searchErrTest() {

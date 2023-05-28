@@ -5,26 +5,24 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentShort;
-import ru.practicum.shareit.comment.mapper.CommentMap;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.repository.CommentRepository;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.messages.ExceptionMessages;
-import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 class CommentServiceImplTest {
     static CommentServiceImpl commentService = new CommentServiceImpl();
@@ -39,6 +37,7 @@ class CommentServiceImplTest {
     static Booking booking;
     static CommentShort commentShort;
     static CommentDto commentDto;
+    static List<Comment> listComment;
     static Comment comment;
 
     @BeforeAll
@@ -56,28 +55,36 @@ class CommentServiceImplTest {
         booking = Booking.builder().start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.WAITING).build();
         commentShort = CommentShort.builder().text("Text test").created(start).build();
         commentDto = CommentDto.builder().text("Text test").authorName(user.getName()).created(start).build();
+        listComment = List.of(Comment.builder().text("Text test").item(item).user(user).created(start).build());
         comment = Comment.builder().text("Text test").item(item).user(user).created(start).build();
     }
 
     //normal behavior
     @Test
-     void addCommentTest() {
+    void addCommentTest() {
         Mockito.when(bookingRepository.getBookingByBookerIdAndItemId(1L, 1L, start))
                 .thenReturn(booking);
         Mockito.when(commentRepository.save(comment))
                 .thenReturn(comment);
 
-        Assertions.assertEquals(commentDto, commentService.addComment(1L,1L, commentShort));
+        Assertions.assertEquals(commentDto, commentService.addComment(1L, 1L, commentShort));
+    }
+
+    @Test
+    void getCommentsByItemIdTest() {
+        Mockito.when(commentRepository.findCommentById(anyLong()))
+                .thenReturn(listComment);
+
+        Assertions.assertEquals(commentDto, commentService.getCommentsByItemId(1L).get(0));
     }
 
     //Reaction to erroneous data
     @Test
     void addCommentErrTest() {
-        Mockito.when(bookingRepository.getBookingByBookerIdAndItemId(1L, 1L, end))
-                .thenReturn(booking);
-        Mockito.when(commentRepository.save(comment))
-                .thenReturn(comment);
-        final ValidException exception = assertThrows(ValidException.class, () -> commentService.addComment(1L,1L, commentShort));
+        Mockito.when(bookingRepository.getBookingByBookerIdAndItemId(anyLong(), anyLong(), any()))
+                .thenReturn(null);
+
+        final ValidException exception = assertThrows(ValidException.class, () -> commentService.addComment(1L, 1L, commentShort));
 
         Assertions.assertEquals(exception.getMessage(), ExceptionMessages.ITEM_NOT_BOOKING.label);
     }

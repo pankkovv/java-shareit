@@ -40,7 +40,6 @@ class ItemRequestServiceImplTest {
     @Test
     void addRequestTest() {
         LocalDateTime start = LocalDateTime.now();
-        List<ItemDto> listItems = List.of(ItemDto.builder().name("Item").description("Item items").available(true).owner(1L).requestId(null).build());
         User user = User.builder().id(1L).name("User").email("user@user.ru").build();
         ItemRequest itemRequest = ItemRequest.builder().id(1L).description("Test").created(start).requestor(user).build();
         ItemRequestDto itemRequestDto = ItemRequestDto.builder().id(1L).description("Test").created(start).requestor(user.getId()).items(null).build();
@@ -48,7 +47,7 @@ class ItemRequestServiceImplTest {
         Mockito.when(userService.findById(anyLong()))
                 .thenReturn(user);
         Mockito.when(itemRequestRepository.save(itemRequest))
-                        .thenReturn(itemRequest);
+                .thenReturn(itemRequest);
 
         assertEquals(itemRequestDto, itemRequestService.addRequest(1L, itemRequestDto));
     }
@@ -65,11 +64,30 @@ class ItemRequestServiceImplTest {
         Mockito.when(userService.findById(anyLong()))
                 .thenReturn(user);
         Mockito.when(itemRequestRepository.findItemRequestByIdNotOrderByCreatedDesc(1L, Pageable.ofSize(4)))
-                        .thenReturn(listItemRequest);
+                .thenReturn(listItemRequest);
         Mockito.when(itemRepository.findItemByRequest_Id(anyLong()))
                 .thenReturn(listItem);
 
         assertEquals(listItemRequestDto, itemRequestService.getRequestAll(1L, 0, 4));
+    }
+
+    @Test
+    void getRequestTest() {
+        LocalDateTime start = LocalDateTime.now();
+        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
+        List<Item> listItem = List.of(Item.builder().id(1L).owner(user).name("Item").description("Item items").available(true).request(null).build());
+        List<ItemDto> listItemDto = List.of(ItemDto.builder().id(1L).name("Item").description("Item items").available(true).owner(user.getId()).requestId(null).build());
+        List<ItemRequest> listItemRequest = List.of(ItemRequest.builder().id(1L).description("Test").created(start).requestor(user).build());
+        List<ItemRequestDto> listItemRequestDto = List.of(ItemRequestDto.builder().id(1L).description("Test").created(start).requestor(user.getId()).items(listItemDto).build());
+
+        Mockito.when(userService.findById(anyLong()))
+                .thenReturn(user);
+        Mockito.when(itemRequestRepository.findItemRequestByRequestor_Id(1L))
+                .thenReturn(listItemRequest);
+        Mockito.when(itemRepository.findItemByRequest_Id(anyLong()))
+                .thenReturn(listItem);
+
+        assertEquals(listItemRequestDto, itemRequestService.getRequest(1L));
     }
 
     //Reaction to empty data
@@ -78,7 +96,6 @@ class ItemRequestServiceImplTest {
         LocalDateTime start = LocalDateTime.now();
         User user = User.builder().id(1L).name("User").email("user@user.ru").build();
         List<Item> listItem = List.of(Item.builder().id(1L).owner(user).name("Item").description("Item items").available(true).request(null).build());
-        List<ItemDto> listItemDto = List.of(ItemDto.builder().id(1L).name("Item").description("Item items").available(true).owner(user.getId()).requestId(null).build());
         List<ItemRequest> listItemRequest = List.of(ItemRequest.builder().id(1L).description("Test").created(start).requestor(user).build());
 
         Mockito.when(userService.findById(anyLong()))
@@ -106,7 +123,7 @@ class ItemRequestServiceImplTest {
         Mockito.when(itemRepository.findItemByRequest_Id(anyLong()))
                 .thenReturn(listItem);
 
-        final NotStateException exception = assertThrows(NotStateException.class, () -> itemRequestService.getRequestAll(1L,-1, 4));
+        final NotStateException exception = assertThrows(NotStateException.class, () -> itemRequestService.getRequestAll(1L, -1, 4));
 
         assertEquals(exception.getMessage(), ExceptionMessages.FROM_NOT_POSITIVE.label);
     }

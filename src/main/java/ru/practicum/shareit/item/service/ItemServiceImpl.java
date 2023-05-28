@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +26,6 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.persistence.Access;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;

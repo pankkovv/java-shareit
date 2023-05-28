@@ -5,9 +5,7 @@ import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMap;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.EntityManager;
@@ -19,16 +17,16 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @Transactional
 @SpringBootTest(
-        properties = "spring.datasource.username=postgres",
+        properties = "spring.datasource.username=test",
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class UserServiceImplIntegrationTest {
+public class UserServiceTest {
     private final EntityManager em;
     private final UserService userService;
 
     @Test
     void saveUserTest() {
-       UserDto userDto = UserDto.builder().id(1L).name("User").email("user@user.ru").build();
+        UserDto userDto = UserDto.builder().id(1L).name("User").email("user@user.ru").build();
 
         userService.saveUser(userDto);
 

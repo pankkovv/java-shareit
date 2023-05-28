@@ -38,7 +38,7 @@ public class BookingDataJpaTest {
     Booking booking = Booking.builder().start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.WAITING).build();
 
     @BeforeEach
-    void dependencyInject(){
+    void dependencyInject() {
         userRepository.save(user);
         userRepository.save(owner);
         itemRepository.save(item);
@@ -46,7 +46,7 @@ public class BookingDataJpaTest {
     }
 
     @AfterEach
-    void clearInject(){
+    void clearInject() {
         userRepository.deleteAll();
         itemRepository.deleteAll();
         bookingRepository.deleteAll();

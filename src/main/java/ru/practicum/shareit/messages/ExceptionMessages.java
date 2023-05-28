@@ -1,7 +1,5 @@
 package ru.practicum.shareit.messages;
 
-import javax.persistence.criteria.From;
-
 public enum ExceptionMessages {
 
     NOT_FOUND_USER("Пользователь не найден."),

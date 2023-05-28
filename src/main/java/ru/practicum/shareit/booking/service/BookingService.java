@@ -2,9 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShort;
-import ru.practicum.shareit.booking.model.Booking;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingService {

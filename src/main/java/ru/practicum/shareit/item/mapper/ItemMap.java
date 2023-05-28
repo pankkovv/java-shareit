@@ -29,7 +29,7 @@ public class ItemMap {
     }
 
     public static ItemDto mapToItemDto(Item item) {
-        if(item.getRequest() != null){
+        if (item.getRequest() != null) {
             return ItemDto.builder()
                     .id(item.getId())
                     .owner(item.getOwner().getId())

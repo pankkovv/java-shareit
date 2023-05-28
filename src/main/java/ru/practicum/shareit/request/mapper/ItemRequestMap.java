@@ -20,7 +20,7 @@ public class ItemRequestMap {
     }
 
     public static ItemRequestDto mapToItemRequestDto(ItemRequest itemRequest) {
-        if(itemRequest != null){
+        if (itemRequest != null) {
             return ItemRequestDto.builder()
                     .id(itemRequest.getId())
                     .description(itemRequest.getDescription())

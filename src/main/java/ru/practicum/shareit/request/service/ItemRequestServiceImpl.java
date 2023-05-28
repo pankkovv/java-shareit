@@ -38,7 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public ItemRequestDto addRequest(Long userId, ItemRequestDto itemRequestDto) {
         User user = validationExistUser(userId);
         itemRequestDto.setRequestor(userId);
-        if(itemRequestDto.getCreated() == null){
+        if (itemRequestDto.getCreated() == null) {
             itemRequestDto.setCreated(LocalDateTime.now());
         }
         log.debug(LogMessages.ADD_REQUEST.label, itemRequestDto);

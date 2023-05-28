@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentShort;
 import ru.practicum.shareit.comment.mapper.CommentMap;
-import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.messages.ExceptionMessages;
@@ -32,7 +31,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto addComment(Long userId, Long itemId, CommentShort commentShort) {
-        if(commentShort.getCreated() == null){
+        if (commentShort.getCreated() == null) {
             commentShort.setCreated(LocalDateTime.now());
         }
         Booking booking = bookingRepository.getBookingByBookerIdAndItemId(userId, itemId, commentShort.getCreated());

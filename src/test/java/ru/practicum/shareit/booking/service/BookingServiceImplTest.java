@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 class BookingServiceImplTest {
@@ -55,8 +56,8 @@ class BookingServiceImplTest {
         owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
         item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
 
-        start = LocalDateTime.now();
-        end = LocalDateTime.now().plusMinutes(1);
+        start = LocalDateTime.of(2020,5,5,14,25,11);
+        end = LocalDateTime.of(2025,5,5,14,27,11);
 
         bookingDto = BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build();
         booking = Booking.builder().start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.WAITING).build();
@@ -122,17 +123,29 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getByIdListBookings() {
+    void getByIdListBookingsTest() {
         List<BookingDto> listBookingDto = List.of(BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build());
         List<Booking> listBooking = List.of(Booking.builder().start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.WAITING).build());
 
         Mockito.when(bookingRepository.getBookingByBookerIdAll(1L, Pageable.ofSize(4)))
                 .thenReturn(listBooking);
+        Mockito.when(bookingRepository.getBookingByUserIdAndBookingStatusCurrent(anyLong(), any(), any()))
+                .thenReturn(listBooking);
+        Mockito.when(bookingRepository.getBookingByUserIdAndBookingStatusPast(anyLong(), any(), any()))
+                .thenReturn(listBooking);
+        Mockito.when(bookingRepository.getBookingByUserIdAndBookingStatusFuture(anyLong(), any(), any()))
+                .thenReturn(listBooking);
         Mockito.when(bookingRepository.getBookingByUserIdAndBookingStatusWaiting(1L, BookingStatus.WAITING, Pageable.ofSize(4)))
+                .thenReturn(listBooking);
+        Mockito.when(bookingRepository.getBookingByUserIdAndBookingStatusRejected(1L, BookingStatus.REJECTED, Pageable.ofSize(4)))
                 .thenReturn(listBooking);
 
         Assertions.assertEquals(listBookingDto, bookingService.getByIdListBookings(1L, "ALL", 0, 4));
+        Assertions.assertEquals(listBookingDto, bookingService.getByIdListBookings(1L, "CURRENT", 0, 4));
+        Assertions.assertEquals(listBookingDto, bookingService.getByIdListBookings(1L, "PAST", 0, 4));
+        Assertions.assertEquals(listBookingDto, bookingService.getByIdListBookings(1L, "FUTURE", 0, 4));
         Assertions.assertEquals(listBookingDto, bookingService.getByIdListBookings(1L, "WAITING", 0, 4));
+        Assertions.assertEquals(listBookingDto, bookingService.getByIdListBookings(1L, "REJECTED", 0, 4));
     }
 
     @Test
@@ -142,12 +155,23 @@ class BookingServiceImplTest {
 
         Mockito.when(bookingRepository.getBookingByOwnerIdAll(1L, Pageable.ofSize(4)))
                 .thenReturn(listBooking);
+        Mockito.when(bookingRepository.getByItemOwnerIdAndBookingStatusCurrent(anyLong(), any(), any()))
+                .thenReturn(listBooking);
+        Mockito.when(bookingRepository.getByItemOwnerIdAndBookingStatusPast(anyLong(), any(), any()))
+                .thenReturn(listBooking);
+        Mockito.when(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(anyLong(), any(), any()))
+                .thenReturn(listBooking);
         Mockito.when(bookingRepository.getBookingByItemOwnerIdAndBookingStatusWaiting(1L, BookingStatus.WAITING, Pageable.ofSize(4)))
                 .thenReturn(listBooking);
-
+        Mockito.when(bookingRepository.getBookingByItemOwnerIdAndBookingStatusRejected(1L, BookingStatus.REJECTED, Pageable.ofSize(4)))
+                .thenReturn(listBooking);
 
         Assertions.assertEquals(listBookingDto, bookingService.getByIdOwnerBookingItems(1L, "ALL", 0, 4));
+        Assertions.assertEquals(listBookingDto, bookingService.getByIdOwnerBookingItems(1L, "CURRENT", 0, 4));
+        Assertions.assertEquals(listBookingDto, bookingService.getByIdOwnerBookingItems(1L, "PAST", 0, 4));
+        Assertions.assertEquals(listBookingDto, bookingService.getByIdOwnerBookingItems(1L, "FUTURE", 0, 4));
         Assertions.assertEquals(listBookingDto, bookingService.getByIdOwnerBookingItems(1L, "WAITING", 0, 4));
+        Assertions.assertEquals(listBookingDto, bookingService.getByIdOwnerBookingItems(1L, "REJECTED", 0, 4));
     }
 
     @Test
@@ -176,21 +200,17 @@ class BookingServiceImplTest {
 
     @Test
     public void bookingConfirmErrTest() {
-        Booking bookingApproved = Booking.builder().id(1L).start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.APPROVED).build();
-        Optional<Booking> bookingOptional = Optional.of(Booking.builder().id(1L).start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.WAITING).build());
-
+        Optional<Booking> bookingOptional = Optional.of(Booking.builder().id(1L).start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.APPROVED).build());
 
         Mockito.when(bookingRepository.findById(1L))
                 .thenReturn(bookingOptional);
 
-
-        Mockito.when(bookingRepository.save(bookingApproved))
-                .thenReturn(bookingApproved);
-
         final NotBookingException exception = assertThrows(NotBookingException.class, () -> bookingService.bookingConfirm(user.getId(), 1L, true));
+        final NotStateException exceptionTwo = assertThrows(NotStateException.class, () -> bookingService.bookingConfirm(owner.getId(), 1L, true));
 
 
         Assertions.assertEquals(exception.getMessage(), ExceptionMessages.NOT_FOUND_BOOKING.label);
+        Assertions.assertEquals(exceptionTwo.getMessage(), ExceptionMessages.APPROVED_STATE.label);
     }
 
     @Test
@@ -208,7 +228,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getByIdListErrBookings() {
+    void getByIdListErrBookingsTest() {
         List<Booking> listBooking = List.of(Booking.builder().start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.WAITING).build());
 
         Mockito.when(bookingRepository.getBookingByBookerIdAll(1L, Pageable.ofSize(4)))

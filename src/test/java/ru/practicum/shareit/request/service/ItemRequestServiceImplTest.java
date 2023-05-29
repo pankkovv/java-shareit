@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
+import ru.practicum.shareit.exception.NotRequestException;
 import ru.practicum.shareit.exception.NotStateException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -19,8 +20,7 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 class ItemRequestServiceImplTest {
@@ -126,5 +126,19 @@ class ItemRequestServiceImplTest {
         final NotStateException exception = assertThrows(NotStateException.class, () -> itemRequestService.getRequestAll(1L, -1, 4));
 
         assertEquals(exception.getMessage(), ExceptionMessages.FROM_NOT_POSITIVE.label);
+    }
+
+    @Test
+    void addRequestErrTest() {
+        LocalDateTime start = LocalDateTime.now();
+        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
+        ItemRequest itemRequest = ItemRequest.builder().id(1L).description("Test").created(start).requestor(user).build();
+
+        Mockito.when(itemRequestRepository.save(itemRequest))
+                .thenReturn(itemRequest);
+
+        final NotRequestException exception = assertThrows(NotRequestException.class, () -> itemRequestService.getRequestId(10L, 1L));
+
+        assertEquals(exception.getMessage(), ExceptionMessages.NOT_FOUND_REQUEST.label);
     }
 }

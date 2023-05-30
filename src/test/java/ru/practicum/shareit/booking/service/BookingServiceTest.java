@@ -5,7 +5,6 @@ import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShort;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.BookingStatus;

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotRequestException;
 import ru.practicum.shareit.exception.NotStateException;
 import ru.practicum.shareit.item.mapper.ItemMap;
@@ -18,7 +19,6 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -45,6 +45,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return ItemRequestMap.mapToItemRequestDto(itemRequestRepository.save(ItemRequestMap.mapToItemRequest(itemRequestDto, user)));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ItemRequestDto> getRequest(Long userId) {
         validationExistUser(userId);
@@ -56,6 +57,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return listItemRequestDto;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ItemRequestDto> getRequestAll(Long userId, Integer from, Integer size) {
         if (from == null || size == null) {
@@ -74,6 +76,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ItemRequestDto getRequestId(Long userId, Long requestId) {
         validationExistUser(userId);

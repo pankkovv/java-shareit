@@ -15,7 +15,7 @@ import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.messages.LogMessages;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,6 +44,7 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CommentDto> getCommentsByItemId(Long itemId) {
         log.debug(LogMessages.COMMENT_ID.label, itemId);

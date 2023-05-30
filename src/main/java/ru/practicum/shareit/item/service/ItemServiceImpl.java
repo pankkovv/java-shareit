@@ -46,6 +46,7 @@ class ItemServiceImpl implements ItemService {
     @Autowired
     private ItemRequestService itemRequestService;
 
+    @Transactional(readOnly = true)
     @Override
     public List<ItemDtoWithBookingAndComments> getByUserId(Long userId, Integer from, Integer size) {
         Pageable page = paged(from, size);
@@ -61,6 +62,7 @@ class ItemServiceImpl implements ItemService {
         return ItemMap.mapToItemDtoWithBookingAndComments(items, bookingsLast, bookingsNext, comments);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ItemDtoWithBookingAndComments getByItemId(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId)
@@ -71,6 +73,7 @@ class ItemServiceImpl implements ItemService {
         return ItemMap.mapToItemDtoWithBookingAndComments(item, bookingLast, bookingNext, comments);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ItemDto> search(String text, Integer from, Integer size) {
         if (!text.isEmpty()) {
@@ -110,6 +113,7 @@ class ItemServiceImpl implements ItemService {
         return saveItem(userId, itemDtoOld);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Item getById(Long itemId) {
         return itemRepository.findById(itemId)
@@ -124,7 +128,7 @@ class ItemServiceImpl implements ItemService {
         if (from != null) {
             if (from < 0) {
                 throw new NotStateException(ExceptionMessages.FROM_NOT_POSITIVE.label);
-            } else if (size > 0){
+            } else if (size > 0) {
                 return PageRequest.of(from > 0 ? from / size : 0, size);
             } else {
                 return PageRequest.of(0, 4);

@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.BookingStatus;
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BookingRepository extends JpaRepository<Booking, Long>, CrudRepository<Booking, Long> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "select b.* from bookings as b " +
             "left join items as i on b.item_id = i.id " +
             "where b.id = ?1 and (b.booker_id = ?2 or i.owner_id = ?2) " +

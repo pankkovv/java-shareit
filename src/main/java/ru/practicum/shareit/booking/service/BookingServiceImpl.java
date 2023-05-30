@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShort;
 import ru.practicum.shareit.booking.mapper.BookingMap;
@@ -24,7 +25,6 @@ import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -81,6 +81,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BookingDto getByIdBooking(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -93,6 +94,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookingDto> getByIdListBookings(Long userId, String state, Integer from, Integer size) {
         Pageable page = paged(from, size);
@@ -126,6 +128,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookingDto> getByIdOwnerBookingItems(Long userId, String state, Integer from, Integer size) {
         Pageable page = paged(from, size);

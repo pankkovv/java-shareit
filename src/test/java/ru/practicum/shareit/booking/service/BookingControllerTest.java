@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,17 +35,31 @@ public class BookingControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    static User user;
+    static User owner;
+    static Item item;
+
+    static BookingDto bookingDto;
+    static BookingShort bookingShort;
+    static List<BookingDto> listBookingDto;
+    static LocalDateTime start;
+    static LocalDateTime end;
+
+
+    @BeforeAll
+    static void assistant() {
+        start = LocalDateTime.of(2024, 5, 27, 14, 49, 11);
+        end = LocalDateTime.of(2024, 5, 27, 14, 50, 11);
+        user = User.builder().id(1L).name("User").email("user@user.ru").build();
+        owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
+        item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
+        bookingDto = BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build();
+        bookingShort = BookingShort.builder().start(start).end(end).itemId(item.getId()).build();
+        listBookingDto = List.of(BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build());
+    }
+
     @Test
     void bookingItemTest() throws Exception {
-        LocalDateTime start = LocalDateTime.of(2024, 5, 27, 14, 49, 11);
-        LocalDateTime end = LocalDateTime.of(2024, 5, 27, 14, 50, 11);
-        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
-        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
-        Item item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
-
-        BookingDto bookingDto = BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build();
-        BookingShort bookingShort = BookingShort.builder().start(start).end(end).itemId(item.getId()).build();
-
         when(bookingService.bookingAdd(anyLong(), any()))
                 .thenReturn(bookingDto);
 
@@ -65,14 +80,6 @@ public class BookingControllerTest {
 
     @Test
     void bookingConfirm() throws Exception {
-        LocalDateTime start = LocalDateTime.of(2023, 5, 27, 14, 49, 11);
-        LocalDateTime end = LocalDateTime.of(2023, 5, 27, 14, 50, 11);
-        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
-        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
-        Item item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
-
-        BookingDto bookingDto = BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build();
-
         when(bookingService.bookingConfirm(anyLong(), anyLong(), anyBoolean()))
                 .thenReturn(bookingDto);
 
@@ -94,14 +101,6 @@ public class BookingControllerTest {
 
     @Test
     void getByIdBookingTest() throws Exception {
-        LocalDateTime start = LocalDateTime.of(2023, 5, 27, 14, 49, 11);
-        LocalDateTime end = LocalDateTime.of(2023, 5, 27, 14, 50, 11);
-        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
-        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
-        Item item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
-
-        BookingDto bookingDto = BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build();
-
         when(bookingService.getByIdBooking(anyLong(), anyLong()))
                 .thenReturn(bookingDto);
 
@@ -122,14 +121,6 @@ public class BookingControllerTest {
 
     @Test
     void getByIdListBookingsTest() throws Exception {
-        LocalDateTime start = LocalDateTime.now();
-        LocalDateTime end = LocalDateTime.now().plusMinutes(1);
-        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
-        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
-        Item item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
-
-        List<BookingDto> listBookingDto = List.of(BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build());
-
         when(bookingService.getByIdListBookings(anyLong(), any(), any(), any()))
                 .thenReturn(listBookingDto);
 
@@ -145,14 +136,6 @@ public class BookingControllerTest {
 
     @Test
     void getByIdOwnerBookingItemsTest() throws Exception {
-        LocalDateTime start = LocalDateTime.now();
-        LocalDateTime end = LocalDateTime.now().plusMinutes(1);
-        User user = User.builder().id(1L).name("User").email("user@user.ru").build();
-        User owner = User.builder().id(2L).name("Owner").email("owner@user.ru").build();
-        Item item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
-
-        List<BookingDto> listBookingDto = List.of(BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build());
-
         when(bookingService.getByIdOwnerBookingItems(anyLong(), any(), any(), any()))
                 .thenReturn(listBookingDto);
 

@@ -6,6 +6,7 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -16,24 +17,37 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class ItemMap {
-    public static Item mapToItem(ItemDto itemDto, User user) {
+    public static Item mapToItem(ItemDto itemDto, User user, ItemRequest itemRequest) {
         return Item.builder()
                 .id(itemDto.getId())
                 .owner(user)
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
+                .request(itemRequest)
                 .build();
     }
 
     public static ItemDto mapToItemDto(Item item) {
-        return ItemDto.builder()
-                .id(item.getId())
-                .owner(item.getOwner().getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
+        if (item.getRequest() != null) {
+            return ItemDto.builder()
+                    .id(item.getId())
+                    .owner(item.getOwner().getId())
+                    .name(item.getName())
+                    .description(item.getDescription())
+                    .available(item.getAvailable())
+                    .requestId(item.getRequest().getId())
+                    .build();
+        } else {
+            return ItemDto.builder()
+                    .id(item.getId())
+                    .owner(item.getOwner().getId())
+                    .name(item.getName())
+                    .description(item.getDescription())
+                    .available(item.getAvailable())
+                    .requestId(null)
+                    .build();
+        }
     }
 
     public static List<ItemDto> mapToItemDto(List<Item> listItem) {
@@ -79,4 +93,5 @@ public class ItemMap {
                 .sorted(Comparator.comparing(ItemDtoWithBookingAndComments::getId))
                 .collect(Collectors.toList());
     }
+
 }

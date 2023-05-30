@@ -1,8 +1,12 @@
 package ru.practicum.shareit.booking.service;
 
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShort;
 import ru.practicum.shareit.booking.mapper.BookingMap;
@@ -21,23 +25,25 @@ import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Slf4j
 public class BookingServiceImpl implements BookingService {
-    private final BookingRepository bookingRepository;
-    private final UserService userService;
-    private final ItemService itemService;
+    @Autowired
+    private BookingRepository bookingRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private ItemService itemService;
 
     @Override
     public BookingDto bookingAdd(Long userId, BookingShort bookingShort) {
-        User user = userService.findById(userId);
+        User user = validationExistUser(userId);
         Item item = itemService.getById(bookingShort.getItemId());
         if (!item.getOwner().equals(user)) {
             BookingDto bookingDto = BookingDto.builder()
@@ -75,6 +81,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BookingDto getByIdBooking(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -87,30 +94,32 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<BookingDto> getByIdListBookings(Long userId, String state) {
+    public List<BookingDto> getByIdListBookings(Long userId, String state, Integer from, Integer size) {
+        Pageable page = paged(from, size);
         validationExistUser(userId);
         try {
             StateStatus stateStatus = StateStatus.valueOf(state);
             switch (stateStatus) {
                 case ALL:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByBookerIdAll(userId));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByBookerIdAll(userId, page));
                 case CURRENT:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusCurrent(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusCurrent(userId, LocalDateTime.now(), page));
                 case PAST:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusPast(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusPast(userId, LocalDateTime.now(), page));
                 case FUTURE:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusFuture(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusFuture(userId, LocalDateTime.now(), page));
                 case WAITING:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusWaiting(userId, BookingStatus.WAITING));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusWaiting(userId, BookingStatus.WAITING, page));
                 case REJECTED:
                     log.debug(LogMessages.BOOKING_USER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusRejected(userId, BookingStatus.REJECTED));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByUserIdAndBookingStatusRejected(userId, BookingStatus.REJECTED, page));
                 default:
                     return List.of();
             }
@@ -119,30 +128,32 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<BookingDto> getByIdOwnerBookingItems(Long userId, String state) {
+    public List<BookingDto> getByIdOwnerBookingItems(Long userId, String state, Integer from, Integer size) {
+        Pageable page = paged(from, size);
         validationExistUser(userId);
         try {
             StateStatus stateStatus = StateStatus.valueOf(state);
             switch (stateStatus) {
                 case ALL:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByOwnerIdAll(userId));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByOwnerIdAll(userId, page));
                 case CURRENT:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusCurrent(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusCurrent(userId, LocalDateTime.now(), page));
                 case PAST:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusPast(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getByItemOwnerIdAndBookingStatusPast(userId, LocalDateTime.now(), page));
                 case FUTURE:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(userId, LocalDateTime.now()));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusFuture(userId, LocalDateTime.now(), page));
                 case WAITING:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusWaiting(userId, BookingStatus.WAITING));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusWaiting(userId, BookingStatus.WAITING, page));
                 case REJECTED:
                     log.debug(LogMessages.BOOKING_OWNER_STATE.label, state);
-                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusRejected(userId, BookingStatus.REJECTED));
+                    return BookingMap.mapToBookingDto(bookingRepository.getBookingByItemOwnerIdAndBookingStatusRejected(userId, BookingStatus.REJECTED, page));
                 default:
                     return List.of();
             }
@@ -151,7 +162,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    void validation(BookingDto bookingDto) {
+    public void validation(BookingDto bookingDto) {
         if (bookingDto.getEnd().isBefore(bookingDto.getStart()) || bookingDto.getEnd().isEqual(bookingDto.getStart())) {
             throw new ValidException(ExceptionMessages.END_BEFORE_START.label);
         }
@@ -160,7 +171,20 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    void validationExistUser(Long userId) {
-        userService.findById(userId);
+    User validationExistUser(Long userId) {
+        return userService.findById(userId);
+    }
+
+    public Pageable paged(Integer from, Integer size) {
+        Pageable page;
+        if (from != null && size != null) {
+            if (from < 0 || size < 0) {
+                throw new NotStateException(ExceptionMessages.FROM_NOT_POSITIVE.label);
+            }
+            page = PageRequest.of(from > 0 ? from / size : 0, size);
+        } else {
+            page = PageRequest.of(0, 4);
+        }
+        return page;
     }
 }

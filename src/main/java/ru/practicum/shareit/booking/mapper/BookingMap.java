@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.mapper;
 
-import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingWithDate;
 import ru.practicum.shareit.booking.model.Booking;
@@ -10,7 +9,6 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor
 public class BookingMap {
     public static Booking mapToBooking(BookingDto bookingDto, Item item, User user) {
         return Booking.builder()

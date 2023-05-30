@@ -60,7 +60,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getRequestAll(Long userId, Integer from, Integer size) {
         if (from == null || size == null) {
             return List.of();
-        } else if (from >= 0) {
+        } else if (from >= 0 && size > 0) {
             Pageable page = PageRequest.of(from / size, size);
             validationExistUser(userId);
             List<ItemRequestDto> listItemRequestDto = ItemRequestMap.mapToItemRequestDto(itemRequestRepository.findItemRequestByIdNotOrderByCreatedDesc(userId, page));

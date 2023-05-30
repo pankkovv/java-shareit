@@ -121,11 +121,14 @@ class ItemServiceImpl implements ItemService {
     }
 
     public Pageable paged(Integer from, Integer size) {
-        if (from != null && size != null) {
+        if (from != null) {
             if (from < 0) {
                 throw new NotStateException(ExceptionMessages.FROM_NOT_POSITIVE.label);
+            } else if (size > 0){
+                return PageRequest.of(from > 0 ? from / size : 0, size);
+            } else {
+                return PageRequest.of(0, 4);
             }
-            return PageRequest.of(from > 0 ? from / size : 0, size);
         } else {
             return PageRequest.of(0, 4);
         }

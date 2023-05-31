@@ -1,7 +1,5 @@
-package main.java.ru.practicum.shareit.item;
+package ru.practicum.shareit.item;
 
-import main.java.ru.practicum.shareit.client.BaseClient;
-import main.java.ru.practicum.shareit.item.dto.CommentDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -9,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import main.java.ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.client.BaseClient;
+import ru.practicum.shareit.item.dto.CommentDtoGateway;
+import ru.practicum.shareit.item.dto.ItemDtoGateway;
 
 import java.util.Map;
 
@@ -27,15 +27,15 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> addItem(long userId, ItemDto requestDto) {
+    public ResponseEntity<Object> addItem(long userId, ItemDtoGateway requestDto) {
         return post("", userId, requestDto);
     }
 
-    public ResponseEntity<Object> addComment(long userId, long itemId, CommentDto requestDto) {
+    public ResponseEntity<Object> addComment(long userId, long itemId, CommentDtoGateway requestDto) {
         return post("/" + itemId + "/comment", userId, requestDto);
     }
 
-    public ResponseEntity<Object> upItem(long userId, long itemId, ItemDto requestDto) {
+    public ResponseEntity<Object> upItem(long userId, long itemId, ItemDtoGateway requestDto) {
         return patch("/" + itemId, userId, requestDto);
     }
 

@@ -2,7 +2,7 @@ package ru.practicum.shareit.request.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import src.main.java.ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoGateway;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -19,5 +19,5 @@ public class ItemRequestDtoGateway {
     private String description;
     private LocalDateTime created;
     private Long requestor;
-    private List<ItemDto> items;
+    private List<ItemDtoGateway> items;
 }

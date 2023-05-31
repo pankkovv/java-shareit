@@ -8,7 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDtoGateway;
 import ru.practicum.shareit.item.dto.ItemDtoGateway;
-import src.main.java.ru.practicum.shareit.messages.LogMessages;
+import ru.practicum.shareit.messages.LogMessages;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -51,12 +51,11 @@ public class ItemControllerGateway {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> searchItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                             @RequestParam @NotBlank String text,
+    public ResponseEntity<Object> searchItem(@RequestParam @NotBlank String text,
                                              @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                              @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.debug(LogMessages.TRY_GET_SEARCH.label, text);
-        return itemClient.searchItem(userId, text, from, size);
+        return itemClient.searchItem(text, from, size);
     }
 
     @GetMapping("/{itemId}")

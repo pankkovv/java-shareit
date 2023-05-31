@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.messages.LogMessages;
 import ru.practicum.shareit.user.dto.UserDtoGateway;
-import src.main.java.ru.practicum.shareit.messages.LogMessages;
 
 import javax.validation.Valid;
 

@@ -8,8 +8,6 @@ import ru.practicum.shareit.booking.dto.BookingShort;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.messages.LogMessages;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**

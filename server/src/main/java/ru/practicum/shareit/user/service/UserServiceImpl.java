@@ -5,18 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMap;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
 @Service
 @Transactional
 @NoArgsConstructor
+public
 class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;

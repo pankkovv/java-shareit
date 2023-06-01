@@ -11,9 +11,6 @@ import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.messages.LogMessages;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -29,8 +26,8 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDtoWithBookingAndComments> getByUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                           @RequestParam (required = false) Integer from,
-                                                           @RequestParam (required = false) Integer size) {
+                                                           @RequestParam(required = false) Integer from,
+                                                           @RequestParam(required = false) Integer size) {
         log.debug(LogMessages.TRY_GET.label, userId);
         return itemService.getByUserId(userId, from, size);
     }
@@ -44,8 +41,8 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchItem(@RequestParam String text,
-                                    @RequestParam (required = false) Integer from,
-                                    @RequestParam (required = false) Integer size) {
+                                    @RequestParam(required = false) Integer from,
+                                    @RequestParam(required = false) Integer size) {
         log.debug(LogMessages.TRY_GET_SEARCH.label, text);
         return itemService.search(text, from, size);
     }

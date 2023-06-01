@@ -3,11 +3,11 @@ package ru.practicum.shareit.item.mapper;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingWithDate;
 import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.Comparator;

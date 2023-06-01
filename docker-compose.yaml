@@ -6,8 +6,8 @@ services:
     ports:
       - "6541:5432"
     environment:
-      - POSTGRES_DB=later
-      - POSTGRES_USER=test
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=test
 
   server:
@@ -19,6 +19,7 @@ services:
     depends_on:
     - db
     environment:
+      - TZ=Europe/Moscow
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
 
   gateway:

@@ -228,30 +228,6 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getByIdListErrBookingsTest() {
-        List<Booking> listBooking = List.of(Booking.builder().start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.WAITING).build());
-
-        Mockito.when(bookingRepository.getBookingByBookerIdAll(1L, Pageable.ofSize(4)))
-                .thenReturn(listBooking);
-
-        final NotStateException exception = assertThrows(NotStateException.class, () -> bookingService.getByIdListBookings(1L, "STATE", 0, 4));
-
-        Assertions.assertEquals(exception.getMessage(), ExceptionMessages.UNKNOWN_STATE.label + "STATE");
-    }
-
-    @Test
-    void getByIdOwnerBookingItemsErrTest() {
-        List<Booking> listBooking = List.of(Booking.builder().start(start).end(end).item(item).booker(user).bookingStatus(BookingStatus.WAITING).build());
-
-        Mockito.when(bookingRepository.getBookingByOwnerIdAll(1L, Pageable.ofSize(4)))
-                .thenReturn(listBooking);
-
-        final NotStateException exception = assertThrows(NotStateException.class, () -> bookingService.getByIdOwnerBookingItems(1L, "STATE", 0, 4));
-
-        Assertions.assertEquals(exception.getMessage(), ExceptionMessages.UNKNOWN_STATE.label + "STATE");
-    }
-
-    @Test
     void pagedErrTest() {
         final NotStateException exception = assertThrows(NotStateException.class, () -> bookingService.paged(-1, 4));
 

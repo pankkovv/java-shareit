@@ -11,20 +11,20 @@ import ru.practicum.shareit.booking.dto.BookingWithDate;
 import ru.practicum.shareit.booking.mapper.BookingMap;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.service.CommentService;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.NotStateException;
-import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.comment.service.CommentService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.shareit.item.mapper.ItemMap;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.request.mapper.ItemRequestMap;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -34,7 +34,6 @@ import java.util.List;
 @Transactional
 @NoArgsConstructor
 @Slf4j
-public
 class ItemServiceImpl implements ItemService {
     @Autowired
     private ItemRepository itemRepository;

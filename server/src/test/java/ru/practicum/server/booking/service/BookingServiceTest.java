@@ -60,11 +60,11 @@ public class BookingServiceTest {
         userOwnerDto = UserDto.builder().id(2L).name("Owner").email("owner@user.ru").build();
         item = Item.builder().id(1L).owner(owner).name("Item").description("Item items").available(true).request(null).build();
         itemDto = ItemDto.builder().name("Item").description("Item items").available(true).owner(owner.getId()).requestId(null).build();
-        bookingShort = BookingShort.builder().start(start).end(end).itemId(item.getId()).build();
         bookingDto = BookingDto.builder().start(start).end(end).status(BookingStatus.WAITING).booker(user).item(item).build();
         userDtoDb = userService.saveUser(userDto);
         ownerDtoDb = userService.saveUser(userOwnerDto);
         itemDtoDb = itemService.saveItem(ownerDtoDb.getId(), itemDto);
+        bookingShort = BookingShort.builder().start(start).end(end).itemId(itemDtoDb.getId()).build();
     }
 
     @Test

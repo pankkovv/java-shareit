@@ -12,13 +12,13 @@ import ru.practicum.server.user.mapper.UserMap;
 import ru.practicum.server.user.model.User;
 import ru.practicum.server.user.repository.UserRepository;
 
+
 import java.util.List;
 
 @Service
 @Transactional
 @NoArgsConstructor
-public
-class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 

@@ -13,9 +13,6 @@ import ru.practicum.server.messages.LogMessages;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor

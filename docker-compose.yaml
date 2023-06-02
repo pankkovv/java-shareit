@@ -17,9 +17,11 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-    - db
+      - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test
 
   gateway:
     build: ./gateway

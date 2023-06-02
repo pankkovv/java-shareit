@@ -10,9 +10,6 @@ import ru.practicum.server.messages.LogMessages;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -45,8 +42,8 @@ public class BookingController {
     @GetMapping
     List<BookingDto> getByIdListBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @RequestParam(required = false) String state,
-                                         @RequestParam (required = false) Integer from,
-                                         @RequestParam (required = false) Integer size) {
+                                         @RequestParam(required = false) Integer from,
+                                         @RequestParam(required = false) Integer size) {
         log.debug(LogMessages.TRY_BOOKING_USER_STATE.label, state);
         return bookingService.getByIdListBookings(userId, state, from, size);
     }
@@ -54,8 +51,8 @@ public class BookingController {
     @GetMapping("/owner")
     List<BookingDto> getByIdOwnerBookingItems(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @RequestParam(required = false) String state,
-                                              @RequestParam (required = false) Integer from,
-                                              @RequestParam (required = false) Integer size) {
+                                              @RequestParam(required = false) Integer from,
+                                              @RequestParam(required = false) Integer size) {
         log.debug(LogMessages.TRY_BOOKING_OWNER_STATE.label, state);
         return bookingService.getByIdOwnerBookingItems(userId, state, from, size);
     }

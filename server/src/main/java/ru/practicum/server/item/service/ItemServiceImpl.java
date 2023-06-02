@@ -9,22 +9,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.booking.dto.BookingWithDate;
 import ru.practicum.server.booking.mapper.BookingMap;
-import ru.practicum.server.exception.NotFoundException;
-import ru.practicum.server.item.repository.ItemRepository;
-import ru.practicum.server.user.model.User;
-import ru.practicum.server.user.service.UserService;
 import ru.practicum.server.booking.repository.BookingRepository;
 import ru.practicum.server.comment.dto.CommentDto;
 import ru.practicum.server.comment.service.CommentService;
+import ru.practicum.server.exception.NotFoundException;
 import ru.practicum.server.exception.NotStateException;
 import ru.practicum.server.item.dto.ItemDto;
 import ru.practicum.server.item.dto.ItemDtoWithBookingAndComments;
 import ru.practicum.server.item.mapper.ItemMap;
 import ru.practicum.server.item.model.Item;
+import ru.practicum.server.item.repository.ItemRepository;
 import ru.practicum.server.messages.ExceptionMessages;
 import ru.practicum.server.request.mapper.ItemRequestMap;
 import ru.practicum.server.request.model.ItemRequest;
 import ru.practicum.server.request.service.ItemRequestService;
+import ru.practicum.server.user.model.User;
+import ru.practicum.server.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -34,8 +34,7 @@ import java.util.List;
 @Transactional
 @NoArgsConstructor
 @Slf4j
-public
-class ItemServiceImpl implements ItemService {
+public class ItemServiceImpl implements ItemService {
     @Autowired
     private ItemRepository itemRepository;
     @Autowired

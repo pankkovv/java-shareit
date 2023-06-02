@@ -69,7 +69,7 @@ public class BookingServiceTest {
 
     @Test
     public void bookingAddTest() {
-        bookingService.bookingAdd(userDto.getId(), bookingShort);
+        bookingService.bookingAdd(userDtoDb.getId(), bookingShort);
 
         TypedQuery<Booking> query = em.createQuery("Select u from Booking u where u.booker.id = :bookerId", Booking.class);
         Booking booking = query.setParameter("bookerId", user.getId()).getSingleResult();

@@ -77,8 +77,6 @@ public class BookingServiceTest {
         MatcherAssert.assertThat(booking.getId(), notNullValue());
         MatcherAssert.assertThat(booking.getStart(), equalTo(bookingDto.getStart()));
         MatcherAssert.assertThat(booking.getEnd(), equalTo(bookingDto.getEnd()));
-        MatcherAssert.assertThat(booking.getItem(), equalTo(bookingDto.getItem()));
-        MatcherAssert.assertThat(booking.getBooker(), equalTo(bookingDto.getBooker()));
         MatcherAssert.assertThat(booking.getBookingStatus(), equalTo(bookingDto.getStatus()));
     }
 

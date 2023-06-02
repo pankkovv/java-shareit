@@ -72,7 +72,7 @@ public class BookingServiceTest {
         bookingService.bookingAdd(userDtoDb.getId(), bookingShort);
 
         TypedQuery<Booking> query = em.createQuery("Select u from Booking u where u.booker.id = :bookerId", Booking.class);
-        Booking booking = query.setParameter("bookerId", user.getId()).getSingleResult();
+        Booking booking = query.setParameter("bookerId", userDtoDb.getId()).getSingleResult();
 
         MatcherAssert.assertThat(booking.getId(), notNullValue());
         MatcherAssert.assertThat(booking.getStart(), equalTo(bookingDto.getStart()));

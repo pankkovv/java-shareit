@@ -1,9 +1,6 @@
 # java-shareit
-## Приложение для шеринга полезных вещей
-
-Проект имеет многомодульную архитектуру (Gateway, Server, PostgreSQL), выполненную за счет Docker.
-Взаимодействие с БД реализовано за счет Spring Data JPA и Hibernate. 
-REST API создано на базе Spring Boot.
+## Описание приложения
+Бекэнд сервиса для обмена полезными вещами: инструментами, гаджетами, книгами и пр.
 
 Приложение имеет следующие функции:
 1. Создание пользователей и полезных вещи;
@@ -14,7 +11,7 @@ REST API создано на базе Spring Boot.
 6. Создание комментария после использования вещи.
 7. Поиск вещи по названию или описанию.
 
-#### Примеры запросов
+## Примеры запросов
 User:
 1. Создание нового пользователя: POST http://localhost:8080/users, в Request Body json с данными пользователя.
 2. Обновление данных пользователя: PATCH http://localhost:8080/users, в Request Body json с данными пользователя.
@@ -45,7 +42,7 @@ Request:
 3. Получение списка запросов для создателя запроса: GET http://localhost:8080/requests
 4. Получение запроса по id: GET http://localhost:8080/requests/{requestId}.
 
-#### Пример запроса к БД
+## Пример запроса к БД
 1. Получние списка, ранжированного по уменьшению даты создания, всех бронирований для создателя бронирований: 
 @Query(value = "select b " +
             "from Booking as b " +
@@ -53,6 +50,23 @@ Request:
             "join fetch b.booker as u " +
             "where b.booker.id = ?1 " +
             "order by b.start desc")
+            
+## Стек
+- Java SE 9
+- Spring Boot
+- Spring Data JPA
+- Hibernate
+- PostgreSQL
+- Docker
+- Mock
+- JUnit
+
+## Шаги по запуску приложения
+- Склонировать репозиторий
+- Синхронизировать pom.xml каждого модуля с локальным репозиторием
+- Запустить билд через консоль с помощью команды (docker-compose up)
+- Взаимодействовать с приложением через API http://localhost:8080/
+- Взаимодействовать с БД через API http://localhost:8080/h2-console c username= sa и passwword= password, либо локально через UI для PostgreSQL c username= postgres и passwword= test
 ----
 Приложение написано на Java и протестировано слайсами. Пример кода:
 ```java

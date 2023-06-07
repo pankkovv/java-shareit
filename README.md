@@ -44,12 +44,14 @@ Request:
 
 ## Пример запроса к БД
 1. Получние списка, ранжированного по уменьшению даты создания, всех бронирований для создателя бронирований: 
+```postgreSQL
 @Query(value = "select b " +
             "from Booking as b " +
             "join fetch b.item as i " +
             "join fetch b.booker as u " +
             "where b.booker.id = ?1 " +
             "order by b.start desc")
+```       
             
 ## Стек
 - Java SE 9

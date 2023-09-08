@@ -54,7 +54,7 @@ Request:
 ```       
             
 ## Стек
-- Java SE 9
+- JDK 11
 - Spring Boot
 - Spring Data JPA
 - Hibernate
